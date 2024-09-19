@@ -17,7 +17,7 @@ if (file_exists($roomFile))
     $currentUsers = file_get_contents($usersFile);
     
     $messages = file_get_contents($roomFile);
-    echo $currentUsers . $messages;
+    echo "$currentUsers\n$messages";
 }
 else echo '';
 ?>

@@ -12,22 +12,21 @@ if (empty($roomCode)) {
 
 // init user count
 $usersFile = 'rooms/' . $roomCode . '_users.txt';
-if (!file_exists($usersFile))
-    file_put_contents($usersFile, '0');
 
 // check if full
-$currentUsers = (int)file_get_contents($usersFile);
-if ($currentUsers >= $maxUsers)
+$currentUsers = file_get_contents($usersFile);
+$numUsers = empty($currentUsers) ? 1 : count(explode('|', $currentUsers));
+
+if ($numUsers > $maxUsers)
     echo json_encode(['status' => 'error', 'message' => 'Room is full']);
 else
 {
-    // increment user count
-    ++$currentUsers;
-    file_put_contents($usersFile, (string)$currentUsers);
+    // add name to user list
+    file_put_contents($usersFile, $currentUsers . $username . '|');
 
     // send welcome message
     $roomFile = 'rooms/' . $roomCode . '.txt';
-    $userJoinedMessage = "$username has joined the room [$currentUsers/4]\n";
+    $userJoinedMessage = "$username has joined the room [$numUsers/4]\n";
     file_put_contents($roomFile, $userJoinedMessage, FILE_APPEND);
 
     echo json_encode(['status' => 'success', 'message' => 'Successfully joined room']);

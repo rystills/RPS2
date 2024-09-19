@@ -7,18 +7,20 @@ $username = $_POST['username'] ?? '';
 if (empty($roomCode))
     exit;
 
-// decrement user count
 $usersFile = 'rooms/' . $roomCode . '_users.txt';
 if (file_exists($usersFile))
 {
     $roomFile = 'rooms/' . $roomCode . '.txt';
-    $currentUsers = (int)file_get_contents($usersFile) - 1;
+    $currentUsers = file_get_contents($usersFile);
+    $numUsers = count(explode('|', $currentUsers)) - 2;
     
-    if ($currentUsers > 0) {
-        file_put_contents($usersFile, (string)($currentUsers));
+    if ($numUsers > 0)
+    {
+        // remove name from user list
+        file_put_contents($usersFile, str_replace($username . '|','', $currentUsers));
         
         // send farewell message
-        $userJoinedMessage = "$username has left the room [$currentUsers/4]\n";
+        $userJoinedMessage = "$username has left the room [$numUsers/4]\n";
         file_put_contents($roomFile, $userJoinedMessage, FILE_APPEND);
     }
     else
