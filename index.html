@@ -57,6 +57,9 @@
                 fetchMessages();
                 // 1 second poll rate
                 setInterval(fetchMessages, 1000);
+
+                // clear input field
+                document.getElementById('roomCode').value = '';
             }
         });
 
@@ -64,12 +67,19 @@
         document.getElementById('sendBtn').addEventListener('click', () =>
         {
             const message = document.getElementById('messageInput').value;
-            const formData = new FormData();
-            formData.append('room', roomCode);
-            formData.append('message', message);
 
-            fetch('send_message.php', { method: 'POST', body: formData })
-                .then(() => fetchMessages());
+            if (message && message.trim() != '')
+            {
+                const formData = new FormData();
+                formData.append('room', roomCode);
+                formData.append('message', message);
+
+                fetch('send_message.php', { method: 'POST', body: formData })
+                    .then(() => fetchMessages());
+
+                // clear input field
+                document.getElementById('messageInput').value = '';
+            }
         });
     </script>
 </body>
