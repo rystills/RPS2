@@ -1,6 +1,7 @@
 <?php
 // get roomCode
 $roomCode = $_POST['room'] ?? '';
+$username = $_POST['username'] ?? '';
 
 // validate
 if (empty($roomCode))
@@ -17,7 +18,7 @@ if (file_exists($usersFile))
         file_put_contents($usersFile, (string)($currentUsers));
         
         // send farewell message
-        $userJoinedMessage = "A user has left the room [$currentUsers/4]\n";
+        $userJoinedMessage = "$username has left the room [$currentUsers/4]\n";
         file_put_contents($roomFile, $userJoinedMessage, FILE_APPEND);
     }
     else

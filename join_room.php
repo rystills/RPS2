@@ -1,6 +1,7 @@
 <?php
 // get roomCode
 $roomCode = $_POST['room'] ?? '';
+$username = $_POST['username'] ?? '';
 $maxUsers = 4;
 
 // validate
@@ -26,7 +27,7 @@ else
 
     // send welcome message
     $roomFile = 'rooms/' . $roomCode . '.txt';
-    $userJoinedMessage = "A user has joined the room [$currentUsers/4]\n";
+    $userJoinedMessage = "$username has joined the room [$currentUsers/4]\n";
     file_put_contents($roomFile, $userJoinedMessage, FILE_APPEND);
 
     echo json_encode(['status' => 'success', 'message' => 'Successfully joined room']);
