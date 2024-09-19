@@ -9,7 +9,7 @@
     <h1>2v2 Rock Paper Scissors</h1>
 
     <!-- room selection -->
-    <input autofocus type="text" id="roomCode" placeholder="Enter room code" onkeydown="enterRoomCode(event)">
+    <input autofocus type="text" id="roomCodeInput" placeholder="Enter room code" onkeydown="enterRoomCode(event)">
     <button id="joinRoomBtn">Join Room</button>
     <button id="leaveRoomBtn" style="display:none">Leave Room</button>
 
@@ -21,6 +21,7 @@
 
     <script>
         let roomCode = '';
+        let fetchIntervalId = 0;
 
         function enterRoomCode(event)
         {
@@ -64,18 +65,20 @@
                 HideRoomControls();
                 document.getElementById('messages').innerHTML = '';
                 document.getElementById('chatWindow').style.display = 'none';
+
+                clearInterval(fetchIntervalID);
             }
         });
 
         function ShowRoomControls()
         {
-            document.getElementById('roomCode').style.display = 'none';
+            document.getElementById('roomCodeInput').style.display = 'none';
             document.getElementById('joinRoomBtn').style.display = 'none';
             document.getElementById('leaveRoomBtn').style.display = 'unset';
         }
 
         function HideRoomControls() {
-            document.getElementById('roomCode').style.display = 'unset';
+            document.getElementById('roomCodeInput').style.display = 'unset';
             document.getElementById('joinRoomBtn').style.display = 'unset';
             document.getElementById('leaveRoomBtn').style.display = 'none';
         }
@@ -83,7 +86,7 @@
         // attempt to join room
         document.getElementById('joinRoomBtn').addEventListener('click', () =>
         {
-            roomCode = document.getElementById('roomCode').value;
+            roomCode = document.getElementById('roomCodeInput').value;
 
             if (roomCode)
             {
@@ -99,10 +102,10 @@
                             document.getElementById('chatWindow').style.display = 'unset';
                             fetchMessages();
                             // 1 second poll rate
-                            setInterval(fetchMessages, 1000);
+                            fetchIntervalID = setInterval(fetchMessages, 1000);
 
                             // clear input field
-                            document.getElementById('roomCode').value = '';
+                            document.getElementById('roomCodeInput').value = '';
                             document.getElementById('messageInput').focus();
 
                             ShowRoomControls();
