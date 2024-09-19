@@ -9,7 +9,7 @@
     <h1>2v2 Rock Paper Scissors</h1>
 
     <!-- room selection -->
-    <input type="text" id="roomCode" placeholder="Enter room code" onkeydown="enterRoomCode(event)">
+    <input autofocus type="text" id="roomCode" placeholder="Enter room code" onkeydown="enterRoomCode(event)">
     <button id="joinRoomBtn">Join Room</button>
 
     <div id="chatWindow" style="display:none;">
@@ -60,6 +60,8 @@
 
                 // clear input field
                 document.getElementById('roomCode').value = '';
+
+                document.getElementById('messageInput').focus();
             }
         });
 
