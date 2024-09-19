@@ -41,7 +41,9 @@
                     .then(response => response.text())
                     .then(data =>
                     {
-                        document.getElementById('messages').innerHTML = data.replace(/\n/g, '<br>');
+                        // first character stores room occupancy; rest is message list
+                        document.querySelector('h1').innerHTML = `2v2 Rock Paper Scissors => ${roomCode} [${data[0]}/4]`;
+                        document.getElementById('messages').innerHTML = data.replace(/\n/g, '<br>').substring(1);
                     });
             }
         }

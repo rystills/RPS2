@@ -7,11 +7,11 @@ if (empty($roomCode))
     exit;
 
 // decrement user count
-$roomFile = 'rooms/' . $roomCode . '_users.txt';
-if (file_exists($roomFile))
+$usersFile = 'rooms/' . $roomCode . '_users.txt';
+if (file_exists($usersFile))
 {
-    $currentUsers = (int)file_get_contents($roomFile);
+    $currentUsers = (int)file_get_contents($usersFile);
     if ($currentUsers > 0)
-        file_put_contents($roomFile, (string)($currentUsers-1));
+        file_put_contents($usersFile, (string)($currentUsers-1));
 }
 ?>

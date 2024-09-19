@@ -9,12 +9,15 @@ if (empty($roomCode))
     exit;
 }
 
-// return messages from room file
+// return user count + messages from room file
 $roomFile = 'rooms/' . $roomCode . '.txt';
 if (file_exists($roomFile))
 {
+    $usersFile = 'rooms/' . $roomCode . '_users.txt';
+    $currentUsers = file_get_contents($usersFile);
+    
     $messages = file_get_contents($roomFile);
-    echo $messages;
+    echo $currentUsers . $messages;
 }
 else echo '';
 ?>
