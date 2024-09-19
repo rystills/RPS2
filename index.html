@@ -46,22 +46,36 @@
             }
         }
 
-        // create room
+        // attempt to join room
         document.getElementById('joinRoomBtn').addEventListener('click', () =>
         {
             roomCode = document.getElementById('roomCode').value;
 
             if (roomCode)
             {
-                document.getElementById('chatWindow').style.display = 'block';
-                fetchMessages();
-                // 1 second poll rate
-                setInterval(fetchMessages, 1000);
+                const formData = new FormData();
+                formData.append('room', roomCode);
 
-                // clear input field
-                document.getElementById('roomCode').value = '';
+                fetch('join_room.php', { method: 'POST', body: formData })
+                    .then(response => response.json())
+                    .then(data =>
+                    {
+                        // join success
+                        if (data.status === 'success') {
+                            document.getElementById('chatWindow').style.display = 'block';
+                            fetchMessages();
+                            // 1 second poll rate
+                            setInterval(fetchMessages, 1000);
 
-                document.getElementById('messageInput').focus();
+                            // clear input field
+                            document.getElementById('roomCode').value = '';
+                            document.getElementById('messageInput').focus();
+
+                            alert(`Joined room '${roomCode}'`);
+                        }
+                        // join fail
+                        else alert(data.message);
+                    });
             }
         });
 
@@ -81,6 +95,17 @@
 
                 // clear input field
                 document.getElementById('messageInput').value = '';
+            }
+        });
+
+        // TODO: poll & kick on timeout / unreported unload
+        // notify server on room leave
+        window.addEventListener('beforeunload', () =>
+        {
+            if (roomCode) {
+                const formData = new FormData();
+                formData.append('room', roomCode);
+                navigator.sendBeacon('leave_room.php', formData);
             }
         });
     </script>
