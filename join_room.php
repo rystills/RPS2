@@ -24,6 +24,11 @@ else
     ++$currentUsers;
     file_put_contents($usersFile, (string)$currentUsers);
 
+    // send welcome message
+    $roomFile = 'rooms/' . $roomCode . '.txt';
+    $userJoinedMessage = "A user has joined the room [$currentUsers/4]\n";
+    file_put_contents($roomFile, $userJoinedMessage, FILE_APPEND);
+
     echo json_encode(['status' => 'success', 'message' => 'Successfully joined room']);
 }
 ?>
