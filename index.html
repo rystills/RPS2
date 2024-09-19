@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2v2 RPS</title>
+</head>
+<body>
+    <h1>2v2 Rock Paper Scissors</h1>
+
+    <!-- room selection -->
+    <input type="text" id="roomCode" placeholder="Enter room code">
+    <button id="joinRoomBtn">Join Room</button>
+
+    <div id="chatWindow" style="display:none;">
+        <div id="messages"></div>
+        <input type="text" id="messageInput" placeholder="Enter message">
+        <button id="sendBtn">Send</button>
+    </div>
+
+    <script>
+        let roomCode = '';
+
+        // get messages in room
+        function fetchMessages()
+        {
+            if (roomCode)
+            {
+                fetch(`fetch_messages.php?room=${roomCode}`)
+                    .then(response => response.text())
+                    .then(data =>
+                    {
+                        document.getElementById('messages').innerHTML = data.replace(/\n/g, '<br>');
+                    });
+            }
+        }
+
+        // create room
+        document.getElementById('joinRoomBtn').addEventListener('click', () =>
+        {
+            roomCode = document.getElementById('roomCode').value;
+
+            if (roomCode)
+            {
+                document.getElementById('chatWindow').style.display = 'block';
+                fetchMessages();
+                // 1 second poll rate
+                setInterval(fetchMessages, 1000);
+            }
+        });
+
+        // send message to room
+        document.getElementById('sendBtn').addEventListener('click', () =>
+        {
+            const message = document.getElementById('messageInput').value;
+            const formData = new FormData();
+            formData.append('room', roomCode);
+            formData.append('message', message);
+
+            fetch('send_message.php', { method: 'POST', body: formData })
+                .then(() => fetchMessages());
+        });
+    </script>
+</body>
+</html>
