@@ -10,7 +10,7 @@ namespace RPS2.Controllers
     {
         public ActionResult Index()
         {
-            ViewBag.Title = "Home Page";
+            ViewBag.Title = "Rock Paper Scissors 2v2";
 
             return View();
         }
