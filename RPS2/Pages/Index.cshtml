@@ -12,6 +12,35 @@
         <div class="d-flex justify-content-center mb-3">
             <input type="text" class="form-control shadow-none" placeholder="Enter your friend's name">
         </div>
-        <a class="btn btn-primary">Find game &raquo;</a>
+        <a id="findGameBtn" class="btn btn-primary">Find game &raquo;</a>
     </section>
 </main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.0/signalr.min.js"></script>
+<script>
+    // create the SignalR connection
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/gamehub")
+        .build();
+
+    function startConnection() {
+        connection.start()
+            .then(() => {
+                console.log("SignalR connected");
+
+                // room connection test
+                const roomCode = "room1";
+                connection.invoke("JoinRoom", roomCode).catch(err => console.error(err));
+            })
+            .catch(err => console.error("Error while starting SignalR connection: " + err));
+    }
+
+    document.getElementById("findGameBtn").addEventListener("click", function() {
+        startConnection();
+    });
+
+    // listen for moves
+    connection.on("ReceiveMove", function(playerMove) {
+        console.log("move received: " + playerMove);
+    });
+</script>
