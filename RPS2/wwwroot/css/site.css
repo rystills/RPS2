@@ -1,22 +1,49 @@
-html {
-  font-size: 14px;
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    margin-top: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+input::placeholder {
+    color: #ffffff5e !important;
+    font-size: 22px;
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+/* Set width on the form input elements since they're 100% wide by default */
+input[type="text"],
+select,
+textarea {
+    max-width: 50% !important;
+    background-color: #59518B !important;
+    color: white !important;
+    padding: 10px 10px !important;
+    line-height: 20px !important;
+    font-size: 22px !important;
+    border-color: white !important;
+    border-width: 2px !important;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
+.btn-primary {
+    color: #fff;
+    background-color: #59518B;
+    border-color: white;
+    border-width: 2px;
+    padding-left: 30px;
+    padding-right: 30px;
 }
 
-body {
-  margin-bottom: 60px;
+.btn-primary:hover
+ {
+    color: #fff;
+    background-color: #7E73C4;
+    border-color: white;
+}
+
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active:focus {
+    color: #fff !important;
+    background-color: #2B2656 !important;
+    border-color: white !important;
 }
