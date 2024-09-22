@@ -7,7 +7,7 @@
 
 input::placeholder {
     color: #ffffff5e !important;
-    font-size: 22px;
+    font-size: 28px;
 }
 
 /* Set width on the form input elements since they're 100% wide by default */
@@ -19,7 +19,7 @@ textarea {
     color: white !important;
     padding: 10px 10px !important;
     line-height: 20px !important;
-    font-size: 22px !important;
+    font-size: 28px !important;
     border-color: white !important;
     border-width: 2px !important;
 }
@@ -31,6 +31,7 @@ textarea {
     border-width: 2px;
     padding-left: 30px;
     padding-right: 30px;
+    font-size: 28px;
 }
 
 .btn-primary:hover
