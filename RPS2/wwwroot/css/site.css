@@ -24,6 +24,14 @@ textarea {
     border-width: 2px !important;
 }
 
+label {
+    font-size: 16px !important;
+    color: white;
+    display: inline-block;
+    text-align: left;
+    width: 50%;
+}
+
 .btn-primary {
     color: #fff;
     background-color: #59518B;
