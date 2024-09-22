@@ -5,9 +5,19 @@
     padding-right: 15px;
 }
 
+input::placeholder {
+    color: #ffffff5e !important;
+    font-size: 22px;
+}
+
 /* Set width on the form input elements since they're 100% wide by default */
 input,
 select,
 textarea {
-    max-width: 280px;
+    max-width: 50%;
+    background-color: #59518B !important;
+    color: white !important;
+    padding: 20px 10px;
+    line-height: 20px;
+    font-size: 22px;
 }
