@@ -24,12 +24,19 @@ textarea {
     border-width: 2px !important;
 }
 
-label {
+.note {
     font-size: 16px !important;
     color: white;
     display: inline-block;
     text-align: left;
     width: 50%;
+}
+
+.waiting-text {
+    font-size: 40px !important;
+    color: white;
+    display: inline-block;
+    text-align: center;
 }
 
 .btn-primary {
@@ -65,4 +72,10 @@ label {
     -ms-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
     width:100%;
+}
+
+.spinner-border {
+    width: 10rem;
+    height: 10rem;
+    color: white;
 }

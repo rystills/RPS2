@@ -2,7 +2,7 @@
 @model IndexModel
 
 <main>
-    <section id="matchmaking" class="center">
+    <section id="matchmaking" class="center" style="visibility:visible">
         <section style="text-align: center; padding:1px">
             <img src="images/Logo.png" class="mb-5"/>
         </section>
@@ -14,7 +14,7 @@
                 <input type="text" class="form-control shadow-none" placeholder="Enter your friend's code*">
             </div>
             <div class="d-flex justify-content-center mb-5">
-                <label>*optional: leave blank for automatic matchmaking</label>
+                <label class="note">*optional: leave blank for automatic matchmaking</label>
             </div> 
             <a id="findGameBtn" class="btn btn-primary mt-5">Find game &raquo;</a>
 
@@ -28,6 +28,22 @@
                 </div>
             </div>
         </section>
+    </section>
+
+    <section id="searching" class="center" style="visibility:hidden">
+        <section style="text-align: center; padding:1px">
+            <img src="images/Logo.png" class="mb-5" />
+        </section>
+        <section style="text-align:center; padding:1px" class="mt-5 mb-5">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </section>
+
+        <section style="text-align: center; padding:1px">
+            <label class="waiting-text">Scissors at the ready... Just waiting for your friend to join the fray! (1/4)</label>
+        </section>
+        
     </section>
 </main>
 
