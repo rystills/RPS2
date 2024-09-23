@@ -2,7 +2,7 @@
 @model IndexModel
 
 <main>
-    <section id="matchmaking" class="center" style="visibility:visible">
+    <section id="matchmaking" class="center" style="visibility:hidden">
         <section style="text-align: center; padding:1px">
             <img src="images/Logo.png" class="mb-5"/>
         </section>
@@ -44,17 +44,42 @@
         </section>
     </section>
 
-    <section id="game" class="center" style="visibility:hidden">
-        <section style="text-align: center; padding:1px">
-            <h1 id="round" class="display-4 mb-3" style="color:white;">Round 1</h1>
-        </section>
-        <section style="text-align: center; padding:1px">
+    <section id="game" class="center" style="visibility:visible">
+        <div class="row">
             <div class="col">
-                <div class="ms-5 border border-white rounded" style="width:12rem; height:16rem">
-
+                <div class="d-flex justify-content-left ms-5">
+                    <div style="flex-direction: column; display:flex">
+                        <div class="ms-5 border border-white rounded" style="width:12rem; height:16rem">
+                        </div>
+                        <div style="height:10rem">
+                        </div>
+                        <div class="col">
+                            <div class="ms-5 border border-white rounded" style="width:12rem; height:16rem">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </section>
+            <div class="col">
+                <section style="text-align: center; padding:1px">
+                    <h1 id="round" class="display-4 mb-3" style="color:white;">Round 1</h1>
+                </section>
+            </div>
+            <div class="col">
+                <div class="d-flex justify-content-end me-5">
+                    <div style="flex-direction: column; display:flex">
+                        <div class="ms-5 border border-white rounded" style="width:12rem; height:16rem">
+                        </div>
+                        <div style="height:10rem">
+                        </div>
+                        <div class="col">
+                            <div class="ms-5 border border-white rounded" style="width:12rem; height:16rem">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 </main>
 
