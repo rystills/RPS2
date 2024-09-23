@@ -48,42 +48,33 @@
 
     <!-- gameplay -->
     <section id="game" style="display:none">
-        <div class="row">
-            <div class="col d-flex flex-column justify-content-between">
-                <div style="flex-direction: column; display:flex">
-                    <div class="ms-5 border border-white rounded" style="width:12rem; height:16rem">
-                        <img id="partnerChoice" src="images/mystery.png" class="mb-5" />
-                    </div>
-                    <div style="height:10rem">
-                    </div>
-                    <div class="col">
-                        <div class="ms-5 border border-white rounded" style="width:12rem; height:16rem">
-                            <img id="selfChoice" src="images/mystery.png" class="mb-5" />
-                        </div>
-                    </div>
+        <div class="container">
+            <div class="top-row">
+                <div></div>
+                <div class="item border border-white rounded">
+                    <img id="partnerChoice" src="images/mystery.png" />
                 </div>
-                
-            </div>
-            <div class="col">
-                <section style="text-align: center; padding:1px">
-                    <h1 id="round" class="display-4 mb-3" style="color:white;">Round 1</h1>
-                </section>
-            </div>
-            <div class="col">
-                <div class="d-flex justify-content-end me-5">
-                    <div style="flex-direction: column; display:flex">
-                        <div class="me-5 border border-white rounded" style="width:12rem; height:16rem">
-                            <img id="partnerEnemyChoice" src="images/mystery.png" class="mb-5" />
-                        </div>
-                        <div style="height:10rem">
-                        </div>
-                        <div class="col">
-                            <div class="me-5 border border-white rounded" style="width:12rem; height:16rem">
-                                <img id="selfEnemyChoice" src="images/mystery.png" class="mb-5" />
-                            </div>
-                        </div>
-                    </div>
+                <div>
+                    <section style="text-align: center;">
+                        <h1 id="round" class="flex-fill" style="color:white;">Round 1</h1>
+                    </section>
                 </div>
+                <div class="item border border-white rounded">
+                    <img id="partnerEnemyChoice" src="images/mystery.png" />
+                </div>
+                <div></div>
+            </div>
+            <div></div>
+            <div class="bottom-row">
+                <div></div>
+                <div class="item border border-white rounded">
+                    <img id="selfChoice" src="images/mystery.png" />
+                </div>
+                <div></div>
+                <div class="item border border-white rounded">
+                    <img id="selfEnemyChoice" src="images/mystery.png" />
+                </div>
+                <div></div>
             </div>
         </div>
     </section>
@@ -151,7 +142,6 @@
                 document.getElementById("waitingQuip").innerText = quips[quips.length * Math.random() | 0] + "... Just waiting for your friend to join the fray!(1 / 4)";
                 break;
             case "game":
-                document.getElementById("selfChoice").src = "";
                 if (aiMode) {
                     // ready all 3 bots immediately
                     document.getElementById("partnerChoice").src = "images/mysteryReady.png";
