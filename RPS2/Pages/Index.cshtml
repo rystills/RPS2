@@ -21,8 +21,7 @@
             <div class="d-flex justify-content-end me-5">
                 <div style="flex-direction: column; display:flex">
                     <img src="images/play_with_friend.png" />
-                    <a id="findGameBtn" class="btn btn-primary mt-3">
-                        90210
+                    <a id="GUID" class="btn btn-primary mt-3">
                         <img src="images/copy_icon.png" class="ms-3" style="text-align:right"/>
                     </a>
                 </div>
@@ -84,6 +83,21 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.0/signalr.min.js"></script>
 <script>
+    function generateUserId() {
+        return crypto.randomUUID().substring(0, 8);
+    }
+
+    // generate new guid
+    let userId = localStorage.getItem('userId');
+    if (!userId) {
+        userId = generateUserId();
+        localStorage.setItem('userId', userId);
+    }
+
+    // display guid
+    document.getElementById('GUID').innerText = `Your ID: ${userId}`;
+
+
     // create the SignalR connection
     const connection = new signalR.HubConnectionBuilder()
         .withUrl("/gamehub")
