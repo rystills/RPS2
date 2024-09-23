@@ -42,7 +42,7 @@
             </div>
         </section>
         <section style="text-align: center; padding:1px">
-            <label class="waiting-text">Scissors at the ready... Just waiting for your friend to join the fray! (1/4)</label>
+            <label id="waitingQuip" class="waiting-text"></label>
         </section>
     </section>
 
@@ -93,6 +93,8 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.0/signalr.min.js"></script>
 <script>
+    let quips = ["Scissors at the ready", "Avalanche incoming", "Paper uncovered"];
+
     friendIdInput.addEventListener('input', function() {
         // restrict friend code input to alphanum
         this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
@@ -146,6 +148,7 @@
             case "matchmaking":
                 break;
             case "searching":
+                document.getElementById("waitingQuip").innerText = quips[quips.length * Math.random() | 0] + "... Just waiting for your friend to join the fray!(1 / 4)";
                 break;
             case "game":
                 document.getElementById("selfChoice").src = "";
