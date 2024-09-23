@@ -2,6 +2,7 @@
 @model IndexModel
 
 <main>
+    <!-- homepage (matchmaking) -->
     <section id="matchmaking" class="center" style="visibility:visible">
         <section style="text-align: center; padding:1px">
             <img src="images/Logo.png" class="mb-5"/>
@@ -16,7 +17,7 @@
             <div class="d-flex justify-content-center mb-5">
                 <label class="note">*optional: leave blank for automatic matchmaking</label>
             </div> 
-            <a id="findGameBtn" class="btn btn-primary mt-5">Find game &raquo;</a>
+            <button id="findGameBtn" class="btn btn-primary mt-5">Find game &raquo;</button>
 
             <div class="d-flex justify-content-end me-5">
                 <div style="flex-direction: column; display:flex">
@@ -29,6 +30,7 @@
         </section>
     </section>
 
+    <!-- searching -->
     <section id="searching" class="center" style="visibility:hidden">
         <section style="text-align: center; padding:1px">
             <img src="images/Logo.png" class="mb-5" />
@@ -43,6 +45,7 @@
         </section>
     </section>
 
+    <!-- gameplay -->
     <section id="game" style="visibility:hidden">
         <div class="row">
             <div class="col d-flex flex-column justify-content-between">
@@ -79,13 +82,18 @@
             </div>
         </div>
     </section>
+
+    <!-- results -->
 </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.0/signalr.min.js"></script>
 <script>
     friendIdInput.addEventListener('input', function() {
-        // restrict to alphanum
+        // restrict friend code input to alphanum
         this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+
+        // tether 'find game' button state to friend code input validity
+        document.getElementById("findGameBtn").disabled = this.value.length > 0 && this.value.length < 8;
     });
 
     function generateUserId() {
