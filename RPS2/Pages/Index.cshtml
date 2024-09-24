@@ -50,19 +50,21 @@
     <section id="game" style="display:none">
         <div class="container">
             <div class="top-row">
-                <div></div>
-                <div class="item ms-5">
-                    <img id="partnerChoice" src="images/mystery.png" />
+                <div class="d-flex justify-content-center">
+                    <div class="item ms-5">
+                        <img id="partnerChoice" src="images/mystery.png" />
+                    </div>
                 </div>
                 <div>
                     <section style="text-align: center;">
                         <h1 id="round" class="flex-fill" style="color:white;">Round 1</h1>
                     </section>
                 </div>
-                <div class="item ms-5">
-                    <img id="partnerEnemyChoice" src="images/mystery.png" />
+                <div class="d-flex justify-content-center">
+                    <div class="item ms-5">
+                        <img id="partnerEnemyChoice" src="images/mystery.png" />
+                    </div>
                 </div>
-                <div></div>
             </div>
             <div></div>
 
@@ -83,20 +85,24 @@
             </div>
             
             <div class="bottom-row">
-                <div></div>
-                <div class="choose-item" style="display:unset">
-                    <img id="rockChoice" src="images/rock.png" />
-                    <img id="paperChoice" src="images/paper.png" />
-                    <img id="scissorsChoice" src="images/scissors.png" />
+                <div class="d-flex justify-content-center">
+                    <div class="choose-item" style="">
+                        <img id="rockChoice" src="images/rock.png" />
+                        <img id="paperChoice" src="images/paper.png" />
+                        <img id="scissorsChoice" src="images/scissors.png" />
+                    </div>
+                    <div class="item" style="display:none !important">
+                        <img id="selfRock" src="images/rock.png" style="display:unset"/>
+                        <img id="selfPaper" src="images/paper.png" style="display:none" />
+                        <img id="selfScissors" src="images/scissors.png" style="display:none"/>
+                    </div>
                 </div>
-                <div class="item" style="display:none">
-                    <img id="selfChoice" src="images/mystery.png" />
-                </div>
                 <div></div>
-                <div class="item">
-                    <img id="selfEnemyChoice" src="images/mystery.png" />
+                <div class="d-flex justify-content-center">
+                    <div class="item">
+                        <img id="selfEnemyChoice" src="images/mystery.png" />
+                    </div>
                 </div>
-                <div></div>
             </div>
         </div>
     </section>
