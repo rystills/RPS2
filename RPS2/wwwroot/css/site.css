@@ -122,11 +122,11 @@ textarea {
 
 .choose-item {
     margin: 40px;
-    /*    display: flex;*/
+    display: flex !important;
     width: 36rem;
     height: 16rem;
-    justify-content: center;
-    align-items: center;
+    justify-content: space-around !important;
+    align-items: center !important;
     overflow: hidden;
     border-radius: 1rem !important;
     border-color: white !important;
@@ -137,6 +137,11 @@ textarea {
 .item img {
     width: 100%;
     height: 100%;
+    object-fit: fill;
+}
+
+.choose-item img {
+    width: 30%;
     object-fit: fill;
 }
 
