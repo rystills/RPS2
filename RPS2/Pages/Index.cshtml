@@ -55,10 +55,15 @@
         <div class="container">
             <div class="top-row">
                 <div class="d-flex justify-content-center">
-                    <div class="item">
-                        <div id="partnerChoiceWait" class="spinner-border spinner-card" role="status" style="display:none">
+                    <div class="d-flex align-items-center flex-column">
+                        <span class="player-name-top">
+                        Friend
+                        </span>
+                        <div class="item">
+                            <div id="partnerChoiceWait" class="spinner-border spinner-card" role="status" style="display:none">
+                            </div>
+                            <img id="partnerChoice" src="images/checkmark_icon.svg" style=""/>
                         </div>
-                        <img id="partnerChoice" src="images/checkmark_icon.svg" style=""/>
                     </div>
                 </div>
                 <div>
@@ -67,10 +72,15 @@
                     </section>
                 </div>
                 <div class="d-flex justify-content-center">
-                    <div class="item">
-                        <div id="partnerEnemyChoiceWait" class="spinner-border spinner-card" role="status" style="display:none">
+                    <div class="d-flex align-items-center flex-column">
+                        <span class="player-name-top">
+                            Enemy1
+                        </span>
+                        <div class="item">
+                            <div id="partnerEnemyChoiceWait" class="spinner-border spinner-card" role="status" style="display:none">
+                            </div>
+                            <img id="partnerEnemyChoice" src="images/checkmark_icon.svg" style=""/>
                         </div>
-                        <img id="partnerEnemyChoice" src="images/checkmark_icon.svg" style=""/>
                     </div>
                 </div>
             </div>
@@ -93,21 +103,37 @@
             
             <div class="bottom-row">
                 <div class="d-flex justify-content-center">
-                    <div class="choose-item" style="">
-                        <img id="rockChoice" src="images/rock.svg" />
-                        <img id="paperChoice" src="images/paper.svg" />
-                        <img id="scissorsChoice" src="images/scissors.svg" />
-                    </div>
-                    <div class="item" style="display:none !important">
-                        <img id="selfChoice" src="images/rock.svg" style="display:none" />
+                    <div class="d-flex align-items-center flex-column">
+                        <div class="choose-item" style="">
+                            <button id="rockBtn" type="button" class="btn shadow-none">
+                                <img id="rockChoice" src="images/rock.svg" />
+                            </button>
+                            <button id="paperBtn" type="button" class="btn shadow-none">
+                                <img id="paperChoice" src="images/paper.svg" />
+                            </button>
+                            <button id="scissorsBtn" type="button" class="btn shadow-none">
+                                <img id="scissorsChoice" src="images/scissors.svg" />
+                            </button>
+                        </div>
+                        <div class="item" style="display:none !important">
+                            <img id="selfChoice" src="images/rock.svg" style="display:none" />
+                        </div>
+                        <span class="player-name-bottom">
+                            You!
+                        </span>
                     </div>
                 </div>
                 <div></div>
                 <div class="d-flex justify-content-center">
-                    <div class="item">
-                        <div id="partnerChoiceWait" class="spinner-border spinner-card" role="status">
+                    <div class="d-flex align-items-center flex-column">
+                        <div class="item">
+                            <div id="partnerChoiceWait" class="spinner-border spinner-card" role="status">
+                            </div>
+                            <img id="selfEnemyChoice" src="images/checkmark_icon.svg" style="display:none"/>
                         </div>
-                        <img id="selfEnemyChoice" src="images/checkmark_icon.svg" style="display:none"/>
+                        <span class="player-name-bottom">
+                            Enemy2
+                        </span>
                     </div>
                 </div>
             </div>
@@ -179,7 +205,7 @@
             case "game":
                 if (aiMode) {
                     // ready all 3 bots immediately
-                    document.getElementById("partnerChoice").src = "images/rock.svg";
+                    document.getElementById("partnerChoice").src = "images/skull_icon.svg";
                     document.getElementById("partnerEnemyChoice").src = "images/checkmark_icon.svg";
                     document.getElementById("selfEnemyChoice").src = "images/checkmark_icon.svg";
                 }
