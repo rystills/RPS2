@@ -57,23 +57,21 @@ textarea {
     font-size: 28px;
 }
 
-.btn-primary:hover
- {
-    color: #fff;
-    background-color: #7E73C4;
-    border-color: white;
-}
+    .btn-primary:hover {
+        color: #fff;
+        background-color: #7E73C4;
+        border-color: white;
+    }
 
-.btn-primary:focus,
-.btn-primary:active,
-.btn-primary.active:focus {
-    color: #fff !important;
-    background-color: #2B2656 !important;
-    border-color: white !important;
-}
+    .btn-primary:focus,
+    .btn-primary:active,
+    .btn-primary.active:focus {
+        color: #fff !important;
+        background-color: #2B2656 !important;
+        border-color: white !important;
+    }
 
 .btn {
-
 }
 
 .center {
@@ -83,7 +81,7 @@ textarea {
     left: 50%;
     -ms-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
-    width:100%;
+    width: 100%;
 }
 
 .spinner-border {
@@ -111,7 +109,6 @@ textarea {
     grid-template-columns: 4fr 3fr 4fr;
     margin-left: 20rem;
     margin-right: 20rem;
-    
 }
 
 .item {
@@ -151,22 +148,23 @@ textarea {
     height: auto;
 }
 
-.choose-item button{
-    display:flex;
+.choose-item button {
+    display: flex;
     width: 28%;
     height: 100%;
     justify-content: center;
-    align-items:center;
+    align-items: center;
 }
 
-.choose-item button img{
-    width: 8rem;
-    height: auto;
-}
+    .choose-item button img {
+        width: 8rem;
+        height: auto;
+    }
 
 .choose-item img {
     width: 8rem;
     height: auto;
+    cursor: pointer;
 }
 
 .middle-row {
@@ -174,7 +172,7 @@ textarea {
     justify-content: space-between;
     align-items: center;
     margin: 0px;
-/*    height:8rem;*/
+    /*    height:8rem;*/
 }
 
 .star-container {
@@ -201,19 +199,19 @@ textarea {
 }
 
 .logo {
-    width:40rem;
-    height:auto;
+    width: 40rem;
+    height: auto;
 }
 
 .play-friends {
     width: 12rem;
-    height:auto;
+    height: auto;
     align-self: end;
 }
 
 .player-name-top {
-    font-size:30px;
-    color:white;
+    font-size: 30px;
+    color: white;
     text-align: center;
     align-self: center;
     margin-top: 3rem;
