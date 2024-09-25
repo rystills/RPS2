@@ -5,7 +5,7 @@
     <!-- homepage (matchmaking) -->
     <section id="matchmaking" class="center">
         <section style="text-align: center; padding:1px">
-            <img src="images/Logo.svg" class="mb-5 logo"/>
+            <img src="images/Logo.svg" class="mb-5 logo" />
         </section>
         <section style="text-align:center; padding:1px" class="mt-5">
             <div class="d-flex justify-content-center mb-4">
@@ -16,13 +16,13 @@
             </div>
             <div class="d-flex justify-content-center mb-5">
                 <label class="note">*optional: leave blank for automatic matchmaking</label>
-            </div> 
+            </div>
             <button id="findGameBtn" class="btn btn-primary mt-5">Find game &raquo;</button>
             <button id="fightAIBtn" class="btn btn-primary mt-5">VS AI</button>
 
             <div class="d-flex justify-content-end me-5">
                 <div style="flex-direction: column; display:flex">
-                    <img src="images/play_with_friend.svg" class="play-friends"/>
+                    <img src="images/play_with_friend.svg" class="play-friends" />
                     <div>
                         <a id="GUID" class="btn btn-primary mt-3">
                             <span id="GUID-TEXT">
@@ -69,12 +69,12 @@
                 <div class="d-flex justify-content-center">
                     <div class="d-flex align-items-center flex-column">
                         <span class="player-name-top">
-                        Friend
+                            Friend
                         </span>
                         <div class="item">
                             <div id="partnerChoiceWait" class="spinner-border spinner-card" role="status" style="display:none">
                             </div>
-                            <img id="partnerChoice" src="images/checkmark_icon.svg" style=""/>
+                            <img id="partnerChoice" src="images/checkmark_icon.svg" style="" />
                         </div>
                     </div>
                 </div>
@@ -94,7 +94,7 @@
                         <div class="item">
                             <div id="partnerEnemyChoiceWait" class="spinner-border spinner-card" role="status" style="display:none">
                             </div>
-                            <img id="partnerEnemyChoice" src="images/checkmark_icon.svg" style=""/>
+                            <img id="partnerEnemyChoice" src="images/checkmark_icon.svg" style="" />
                         </div>
                     </div>
                 </div>
@@ -103,19 +103,16 @@
 
             <div class="middle-row">
                 <div class="star-container">
-                    <img id="team_empty_star_1" src="images/star_empty.svg" class="star" style="display:unset" />
-                    <img id="team_empty_star_2" src="images/star_empty.svg" class="star" style="display:unset" />
-                    <img id="team_filled_star_1" src="images/star_filled.svg" class="star" style="display:none" />
-                    <img id="team_filled_star_2" src="images/star_filled.svg" class="star" style="display:none" />
+                    <img id="team_star_1" src="images/star_empty.svg" class="star" style="display:unset" />
+                    <img id="team_star_2" src="images/star_empty.svg" class="star" style="display:unset" />
+
                 </div>
                 <div class="star-container">
-                    <img id="enemy_empty_star_1" src="images/star_empty.svg" class="star" style="display:unset" />
-                    <img id="enemy_empty_star_2" src="images/star_empty.svg" class="star" style="display:unset"/>
-                    <img id="enemy_filled_star_1" src="images/star_filled.svg" class="star" style="display:none" />
-                    <img id="enemy_filled_star_2" src="images/star_filled.svg" class="star" style="display:none" />
+                    <img id="enemy_star_1" src="images/star_empty.svg" class="star" style="display:unset" />
+                    <img id="enemy_star_2" src="images/star_empty.svg" class="star" style="display:unset" />
                 </div>
             </div>
-            
+
             <div class="bottom-row">
                 <div class="d-flex justify-content-center">
                     <div class="d-flex align-items-center flex-column">
@@ -139,7 +136,7 @@
                         <div class="item">
                             <div id="selfEnemyChoiceWait" class="spinner-border spinner-card" role="status" style="display:none">
                             </div>
-                            <img id="selfEnemyChoice" src="images/checkmark_icon.svg"/>
+                            <img id="selfEnemyChoice" src="images/checkmark_icon.svg" />
                         </div>
                         <span class="player-name-bottom">
                             Enemy2
@@ -157,7 +154,7 @@
 <script>
     let quips = ["Scissors at the ready", "Avalanche incoming", "Paper uncovered"];
     let moveOptions = ["rock", "paper", "scissors"];
-    
+
     // gamestate
     // player order: self, selfEnemy, partner, partnerEnemy
     let playerChoices = [0, 0, 0, 0];
@@ -165,10 +162,13 @@
     let roundSecondsRemaining = 0;
     let resultsSecondsRemaining = 0;
     let aiMode = false;
+    let teamWins = 0;
+    let enemyWins = 0;
+    let starsToWin = 2;
 
-    friendIdInput.addEventListener('input', function() {
+    friendIdInput.addEventListener('input', function () {
         // restrict friend code input to alphanum
-        this.value = this.value.replace(/[^a-zA-Z0-9-_]/g, '');
+        this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
 
         // tether 'find game' button state to friend code input validity
         document.getElementById("findGameBtn").disabled = this.value.length > 0 && this.value.length < 8;
@@ -189,12 +189,92 @@
                 // display guid
                 document.getElementById('GUID-TEXT').innerText = `${connection.connectionId.substring(0, 8)}`;
                 document.getElementById('GUID-TEXT-2').innerText = `${connection.connectionId.substring(0, 8)}`;
+
+                // room connection test
+                const roomCode = "room1";
+                connection.invoke("JoinRoom", roomCode).catch(err => console.error(err));
             })
             .catch(err => console.error("Error while starting SignalR connection: " + err));
     }
 
     function startNextRound() {
-        
+
+        if (playersAlive[0]) {
+            document.getElementById('chooseItem').style.setProperty('display', 'flex', 'important');
+            document.getElementById('selfChoiceDiv').style.setProperty('display', 'none', 'important');
+        }
+        else {
+            document.getElementById('selfChoice').src = "images/skull_icon.svg"
+        }
+
+        if (playersAlive[2]) {
+            document.getElementById("partnerChoiceWait").style.setProperty('display', 'unset', 'important');
+            document.getElementById("partnerChoice").style.setProperty('display', 'none', 'important');
+        }
+        else {
+            document.getElementById('partnerChoice').src = "images/skull_icon.svg"
+        }
+
+        if (playersAlive[3]) {
+            document.getElementById("partnerEnemyChoiceWait").style.setProperty('display', 'unset', 'important');
+            document.getElementById("partnerEnemyChoice").style.setProperty('display', 'none', 'important');
+        }
+        else {
+            document.getElementById('partnerEnemyChoice').src = "images/skull_icon.svg"
+        }
+
+        if (playersAlive[1]) {
+            document.getElementById("selfEnemyChoiceWait").style.setProperty('display', 'unset', 'important');
+            document.getElementById("selfEnemyChoice").style.setProperty('display', 'none', 'important');
+        }
+        else {
+            document.getElementById('selfEnemyChoice').src = "images/skull_icon.svg"
+        }
+
+
+        // countdown
+        roundSecondsRemaining = 10;
+        document.getElementById('countdown').textContent = "00:" + String(roundSecondsRemaining).padStart(2, '0');
+        document.getElementById('countdown').style.color = roundSecondsRemaining > 5 ? "white" : roundSecondsRemaining > 3 ? "orange" : "red";
+        countdownInterval = setInterval(() => {
+            --roundSecondsRemaining;
+            document.getElementById('countdown').textContent = "00:" + String(roundSecondsRemaining).padStart(2, '0');
+            document.getElementById('countdown').style.color = roundSecondsRemaining > 5 ? "white" : roundSecondsRemaining > 3 ? "orange" : "red";
+
+            // countdown finished
+            if (roundSecondsRemaining === 0) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+                document.getElementById('countdown').textContent = 'Results';
+                document.getElementById('countdown').style.color = "white";
+
+                if (aiMode)
+                    makeAiChoices();
+                revealChoices();
+            }
+        }, 1000);
+
+        if (aiMode) {
+            // ready all 3 bots immediately
+            // in future just move these to "movereceived";
+            if (playersAlive[2]) {
+                document.getElementById("partnerChoice").src = "images/checkmark_icon.svg";
+                document.getElementById("partnerChoiceWait").style.setProperty('display', 'none', 'important');
+                document.getElementById("partnerChoice").style.setProperty('display', 'flex', 'important');
+            }
+
+            if (playersAlive[3]) {
+                document.getElementById("partnerEnemyChoice").src = "images/checkmark_icon.svg";
+                document.getElementById("partnerEnemyChoiceWait").style.setProperty('display', 'none', 'important');
+                document.getElementById("partnerEnemyChoice").style.setProperty('display', 'flex', 'important');
+            }
+
+            if (playersAlive[1]) {
+                document.getElementById("selfEnemyChoice").src = "images/checkmark_icon.svg";
+                document.getElementById("selfEnemyChoiceWait").style.setProperty('display', 'none', 'important');
+                document.getElementById("selfEnemyChoice").style.setProperty('display', 'flex', 'important');
+            }
+        }
     }
 
     // res: -1 = loss, 0 = tie, 1 = win
@@ -206,72 +286,153 @@
         if (a == 1)
             return b == 0 ? 1 : b == 1 ? 0 : -1;
         // scissors
-        return     b == 0 ? -1 : b == 1 ? 1 : 0;
+        return b == 0 ? -1 : b == 1 ? 1 : 0;
     }
 
     function revealChoices() {
         // reveal player choices
-        document.getElementById('partnerChoice').src = "images/" + moveOptions[playerChoices[2]] + ".svg"
-        document.getElementById('partnerEnemyChoice').src = "images/" + moveOptions[playerChoices[3]] + ".svg"
-        document.getElementById('selfEnemyChoice').src = "images/" + moveOptions[playerChoices[1]] + ".svg"
-        
-        document.getElementById('selfChoiceDiv').style.setProperty('display', 'unset', 'important');
-        document.getElementById('selfChoice').src = "images/" + moveOptions[playerChoices[0]] + ".svg"
+        if (playersAlive[2])
+            document.getElementById('partnerChoice').src = "images/" + moveOptions[playerChoices[2]] + ".svg"
+
+        if (playersAlive[3])
+            document.getElementById('partnerEnemyChoice').src = "images/" + moveOptions[playerChoices[3]] + ".svg"
+
+        if (playersAlive[1])
+            document.getElementById('selfEnemyChoice').src = "images/" + moveOptions[playerChoices[1]] + ".svg"
+
+        if (playersAlive[0]) {
+            document.getElementById('selfChoiceDiv').style.setProperty('display', 'flex', 'important');
+            document.getElementById('selfChoice').src = "images/" + moveOptions[playerChoices[0]] + ".svg"
+        }
 
         // hide choice selection
         document.getElementById('chooseItem').style.setProperty('display', 'none', 'important');
 
-        resultsSecondsRemaining = 5;
+        // evaluate round
+        // all players alive
+        if (playersAlive[0] && playersAlive[1] && playersAlive[2] && playersAlive[3]) {
+            let selfRes = GetRPSResult(playerChoices[0], playerChoices[1]);
+            let selfEnemyRes = -selfRes;
+            let partnerRes = GetRPSResult(playerChoices[2], playerChoices[3]);
+            let partnerEnemyRes = -partnerRes;
+            playersAlive[0] = selfRes >= 0;
+            playersAlive[1] = selfEnemyRes >= 0;
+            playersAlive[2] = partnerRes >= 0;
+            playersAlive[3] = partnerEnemyRes >= 0;
+        }
+        // you dead
+        else if (!playersAlive[0] && playersAlive[1] && playersAlive[2] && playersAlive[3]) {
+            let partnerRes1 = GetRPSResult(playerChoices[2], playerChoices[1]);
+            let selfEnemyRes = -partnerRes1;
+            let partnerRes2 = GetRPSResult(playerChoices[2], playerChoices[3]);
+            let partnerEnemyRes = -partnerRes2;
+            playersAlive[1] = selfEnemyRes >= 0;
+            playersAlive[2] = partnerRes2 >= 0 && partnerRes2 >= 0;
+            playersAlive[3] = partnerEnemyRes >= 0;
+        }
+        // partner dead
+        else if (playersAlive[0] && playersAlive[1] && !playersAlive[2] && playersAlive[3]) {
+            let selfRes1 = GetRPSResult(playerChoices[0], playerChoices[1]);
+            let selfEnemyRes = -selfRes1;
+            let selfRes2 = GetRPSResult(playerChoices[0], playerChoices[3]);
+            let partnerEnemyRes = -selfRes2;
+            playersAlive[0] = selfRes1 >= 0 && selfRes2 >= 0;
+            playersAlive[1] = selfEnemyRes >= 0;
+            playersAlive[3] = partnerEnemyRes >= 0;
+        }
+        // your enemy dead
+        else if (playersAlive[0] && !playersAlive[1] && playersAlive[2] && playersAlive[3]) {
+            let selfRes = GetRPSResult(playerChoices[0], playerChoices[3]);
+            let partnerEnemyRes1 = -selfRes;
+            let partnerRes = GetRPSResult(playerChoices[2], playerChoices[3]);
+            let partnerEnemyRes2 = -partnerRes;
+            playersAlive[0] = selfRes >= 0;
+            playersAlive[2] = partnerRes >= 0;
+            playersAlive[3] = partnerEnemyRes1 >= 0 && partnerEnemyRes2 >= 0;
+        }
+        // partner enemy dead
+        else if (playersAlive[0] && playersAlive[1] && playersAlive[2] && !playersAlive[3]) {
+            let selfRes = GetRPSResult(playerChoices[0], playerChoices[1]);
+            let selfEnemyRes1 = -selfRes;
+            let partnerRes = GetRPSResult(playerChoices[2], playerChoices[1]);
+            let selfEnemyRes2 = -partnerRes;
+            playersAlive[0] = selfRes >= 0;
+            playersAlive[1] = selfEnemyRes1 >= 0 && selfEnemyRes2 >= 0;
+            playersAlive[2] = partnerRes >= 0;
+        }
+
+        // two dead
+        else if (playersAlive[0] + playersAlive[1] + playersAlive[2] + playersAlive[3] == 2) {
+            // there shouldn't be a case where two on the same team are alive as the round would be reset
+            let teamAlive = playersAlive[0] ? 0 : 2;
+            let enemyAlive = playersAlive[1] ? 1 : 3;
+            let teamRes = GetRPSResult(playerChoices[teamAlive], playerChoices[enemyAlive]);
+            let enemyRes = -teamRes;
+            playersAlive[teamAlive] = teamRes >= 0;
+            playersAlive[enemyAlive] = enemyRes >= 0;
+        }
+
+        if (!playersAlive[1] && !playersAlive[3]) {
+            winRound();
+        }
+
+        if (!playersAlive[0] && !playersAlive[2]) {
+            loseRound();
+        }
+
+        resultsSecondsRemaining = 3;
         let resultsInterval = setInterval(() => {
             if (--resultsSecondsRemaining == 0) {
-                // evaluate round
-                // all players alive
-                if (playersAlive[0] && playersAlive[1] && playersAlive[2] && playersAlive[3]) {
-                    let selfRes = GetRPSResult(playerChoices[0], playerChoices[1]);
-                    let selfEnemyRes = -selfRes;
-                    let partnerRes = GetRPSResult(playerChoices[2], playerChoices[3]);
-                    let partnerEnemyRes = -partnerRes;
-                    alert("selfRes: " + selfRes + " | partnerRes: " + partnerRes + " | selfEnemyRes: " + selfEnemyRes + " | partnerEnemyRes: " + partnerEnemyRes);
+                if (teamWins >= starsToWin) {
+                    reset();
+                    SetActiveScreen("matchmaking"); // TODO: go to win screen
                 }
-                // you dead
-                else if (!playersAlive[0] && playersAlive[1] && playersAlive[2] && playersAlive[3]) {
-                    let partnerRes1 = GetRPSResult(playerChoices[2], playerChoices[1]);
-                    let selfEnemyRes = -partnerRes1;
-                    let partnerRes2 = GetRPSResult(playerChoices[2], playerChoices[3]);
-                    let partnerEnemyRes = -partnerRes2;
-                    alert("partnerRes1: " + partnerRes1 + " | selfEnemyRes: " + selfEnemyRes + " | partnerRes2: " + partnerRes2 + " | partnerEnemyRes: " + partnerEnemyRes);
+                else if (enemyWins >= starsToWin) {
+                    reset();
+                    SetActiveScreen("matchmaking"); // TODO: go to lose screen here
                 }
-                // partner dead
-                else if (playersAlive[0] && playersAlive[1] && !playersAlive[2] && playersAlive[3]) {
-                    let selfRes1 = GetRPSResult(playerChoices[0], playerChoices[1]);
-                    let selfEnemyRes = -selfRes1;
-                    let selfRes2 = GetRPSResult(playerChoices[0], playerChoices[3]);
-                    let partnerEnemyRes = -selfRes2;
-                    alert("selfRes1: " + selfRes1 + " | selfEnemyRes: " + selfEnemyRes + " | selfRes2: " + selfRes2 + " | partnerEnemyRes: " + partnerEnemyRes);
-                }
-                // your enemy dead
-                else if (playersAlive[0] && !playersAlive[1] && playersAlive[2] && playersAlive[3]) {
-                    let selfRes = GetRPSResult(playerChoices[0], playerChoices[3]);
-                    let partnerEnemyRes1 = -selfRes;
-                    let partnerRes = GetRPSResult(playerChoices[2], playerChoices[3]);
-                    let partnerEnemyRes2 = -partnerRes;
-                    alert("selfRes: " + selfRes + " | partnerEnemyRes1: " + partnerEnemyRes1 + " | partnerRes: " + partnerRes + " | partnerEnemyRes2: " + partnerEnemyRes2);
-                }
-                // partner enemy dead
                 else {
-                    let selfRes = GetRPSResult(playerChoices[0], playerChoices[1]);
-                    let selfEnemyRes1 = -selfRes;
-                    let partnerRes = GetRPSResult(playerChoices[2], playerChoices[1]);
-                    let selfEnemyRes2 = -partnerRes;
-                    alert("selfRes: " + selfRes + " | selfEnemyRes1: " + selfEnemyRes1 + " | partnerRes: " + partnerRes + " | selfEnemyRes2: " + selfEnemyRes2);
+                    // start next round
+                    startNextRound();
                 }
 
-                // start next round
-                startNextRound();
                 clearInterval(resultsInterval);
                 resultsInterval = null;
             }
         }, 1000);
+    }
+
+    function reset() {
+        document.getElementById('team_star_1').src = "images/star_empty.svg";
+        document.getElementById('team_star_2').src = "images/star_empty.svg";
+        document.getElementById('enemy_star_1').src = "images/star_empty.svg";
+        document.getElementById('enemy_star_2').src = "images/star_empty.svg";
+        enemyWins = 0;
+        teamWins = 0;
+        playersAlive = [true, true, true, true];
+
+    }
+
+    function winRound() {
+        playersAlive = [true, true, true, true];
+        teamWins++;
+        if (teamWins > 0) {
+            document.getElementById('team_star_1').src = "images/star_filled.svg";
+        }
+        if (teamWins > 1) {
+            document.getElementById('team_star_2').src = "images/star_filled.svg";
+        }
+    }
+
+    function loseRound() {
+        playersAlive = [true, true, true, true];
+        enemyWins++;
+        if (enemyWins > 0) {
+            document.getElementById('enemy_star_1').src = "images/star_filled.svg";
+        }
+        if (enemyWins > 1) {
+            document.getElementById('enemy_star_2').src = "images/star_filled.svg";
+        }
     }
 
     let countdownInterval = null;
@@ -290,33 +451,8 @@
                 document.getElementById("waitingQuip").innerText = quips[quips.length * Math.random() | 0] + "... Just waiting for your friend to join the fray!(1 / 4)";
                 break;
             case "game":
-                
-                // countdown
-                roundSecondsRemaining = 10;
-                countdownInterval = setInterval(() => {
-                    --roundSecondsRemaining;
-                    document.getElementById('countdown').textContent = "00:" + String(roundSecondsRemaining).padStart(2, '0');
-                    document.getElementById('countdown').style.color = roundSecondsRemaining > 5 ? "white" : roundSecondsRemaining > 3 ? "orange" : "red";
-
-                    // countdown finished
-                    if (roundSecondsRemaining === 0) {
-                        clearInterval(countdownInterval);
-                        countdownInterval = null;
-                        document.getElementById('countdown').textContent = 'Time\'s up!';
-                        document.getElementById('countdown').style.color = "blue";
-
-                        if (aiMode)
-                            makeAiChoices();
-                        revealChoices();
-                    }
-                }, 1000);
-
-                if (aiMode) {
-                    // ready all 3 bots immediately
-                    document.getElementById("partnerChoice").src = "images/checkmark_icon.svg";
-                    document.getElementById("partnerEnemyChoice").src = "images/checkmark_icon.svg";
-                    document.getElementById("selfEnemyChoice").src = "images/checkmark_icon.svg";
-                }
+                reset();
+                startNextRound();
                 break;
         }
     }
@@ -333,8 +469,8 @@
                 // end countdown immediately upon selecting a choice in ai mode
                 clearInterval(countdownInterval);
                 countdownInterval = null;
-                document.getElementById('countdown').textContent = 'Time\'s up!';
-                document.getElementById('countdown').style.color = "blue";
+                document.getElementById('countdown').textContent = 'Results';
+                document.getElementById('countdown').style.color = "white";
                 makeAiChoices();
                 revealChoices();
             }
@@ -376,7 +512,7 @@
     });
 
     // listen for moves
-    connection.on("ReceiveMove", function(playerMove) {
+    connection.on("ReceiveMove", function (playerMove) {
         console.log("move received: " + playerMove);
     });
 
