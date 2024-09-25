@@ -119,19 +119,14 @@
             <div class="bottom-row">
                 <div class="d-flex justify-content-center">
                     <div class="d-flex align-items-center flex-column">
-                        <div class="choose-item" style="">
-                            <button id="rockBtn" type="button" class="btn shadow-none">
-                                <img id="rockChoice" src="images/rock.svg" />
-                            </button>
-                            <button id="paperBtn" type="button" class="btn shadow-none">
-                                <img id="paperChoice" src="images/paper.svg" />
-                            </button>
-                            <button id="scissorsBtn" type="button" class="btn shadow-none">
-                                <img id="scissorsChoice" src="images/scissors.svg" />
-                            </button>
+                        <!-- choice selection -->
+                        <div id="chooseItem" class="choose-item">
+                            <img id="rockChoice" src="images/rock.svg" />
+                            <img id="paperChoice" src="images/paper.svg" />
+                            <img id="scissorsChoice" src="images/scissors.svg" />
                         </div>
-                        <div class="item" style="display:none !important">
-                            <img id="selfChoice" src="images/rock.svg" style="display:none" />
+                        <div id="selfChoiceDiv" class="item" style="display:none !important">
+                            <img id="selfChoice" src="images/rock.svg" />
                         </div>
                         <span class="player-name-bottom">
                             You!
@@ -207,9 +202,16 @@
     }
 
     function revealChoices() {
+        // reveal player choices
         document.getElementById('partnerChoice').src = "images/" + choices[playerChoices[2]] + ".svg"
         document.getElementById('partnerEnemyChoice').src = "images/" + choices[playerChoices[3]] + ".svg"
         document.getElementById('selfEnemyChoice').src = "images/" + choices[playerChoices[1]] + ".svg"
+        
+        document.getElementById('selfChoiceDiv').style.setProperty('display', 'unset', 'important');
+        document.getElementById('selfChoice').src = "images/" + choices[playerChoices[0]] + ".svg"
+
+        // hide choice selection
+        document.getElementById('chooseItem').style.setProperty('display', 'none', 'important');
     }
 
     let aiMode = false;
