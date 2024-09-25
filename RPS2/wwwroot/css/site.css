@@ -106,13 +106,6 @@ textarea {
     
 }
 
-.middle-row {
-    display:flex;
-    justify-content: space-between;
-    align-items:center;
-    margin: 0px;
-}
-
 .item {
     margin-left: 40px;
     margin-right: 40px;
@@ -168,6 +161,14 @@ textarea {
     height: auto;
 }
 
+.middle-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0px;
+/*    height:8rem;*/
+}
+
 .star-container {
     margin-left: 40px;
     margin-right: 40px;
@@ -216,4 +217,16 @@ textarea {
     text-align: center;
     align-self: center;
     margin-bottom: 3rem;
+}
+
+.round-text {
+    font-size: 40px !important;
+    color: white;
+    text-align: center;
+}
+
+.countdown {
+    font-size: 30px !important;
+    color: white;
+    text-align: center;
 }
