@@ -345,6 +345,10 @@
         }
     }
 
+    document.getElementById("GUID").addEventListener("click", function () {
+        navigator.clipboard.writeText(document.getElementById("GUID-TEXT").innerText);
+    });
+
     document.getElementById("rockChoice").addEventListener("click", function () {
         makeChoice(0);
     });
