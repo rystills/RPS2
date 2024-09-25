@@ -49,7 +49,7 @@
             <label id="waitingQuip" class="waiting-text"></label>
         </section>
         <section style="text-align: center; padding:1px">
-            <a id="GUID" class="btn btn-primary mt-5">
+            <a id="GUID-2" class="btn btn-primary mt-5">
                 <span id="GUID-TEXT-2">
                     asdfasdf
                 </span>
@@ -347,6 +347,10 @@
 
     document.getElementById("GUID").addEventListener("click", function () {
         navigator.clipboard.writeText(document.getElementById("GUID-TEXT").innerText);
+    });
+
+    document.getElementById("GUID-2").addEventListener("click", function () {
+        navigator.clipboard.writeText(document.getElementById("GUID-TEXT-2").innerText);
     });
 
     document.getElementById("rockChoice").addEventListener("click", function () {
