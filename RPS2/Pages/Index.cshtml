@@ -142,9 +142,9 @@
                 <div class="d-flex justify-content-center">
                     <div class="d-flex align-items-center flex-column">
                         <div class="item">
-                            <div id="partnerChoiceWait" class="spinner-border spinner-card" role="status">
+                            <div id="selfEnemyChoiceWait" class="spinner-border spinner-card" role="status" style="display:none">
                             </div>
-                            <img id="selfEnemyChoice" src="images/checkmark_icon.svg" style="display:none"/>
+                            <img id="selfEnemyChoice" src="images/checkmark_icon.svg"/>
                         </div>
                         <span class="player-name-bottom">
                             Enemy2
@@ -161,6 +161,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.0/signalr.min.js"></script>
 <script>
     let quips = ["Scissors at the ready", "Avalanche incoming", "Paper uncovered"];
+    let choices = ["rock", "paper", "scissors"];
+    let playerChoices = [0, 0, 0, 0];
     let roundSecondsRemaining = 0;
 
     friendIdInput.addEventListener('input', function() {
@@ -204,7 +206,14 @@
             .catch(err => console.error("Error while starting SignalR connection: " + err));
     }
 
+    function revealChoices() {
+        document.getElementById('partnerChoice').src = "images/" + choices[playerChoices[2]] + ".svg"
+        document.getElementById('partnerEnemyChoice').src = "images/" + choices[playerChoices[3]] + ".svg"
+        document.getElementById('selfEnemyChoice').src = "images/" + choices[playerChoices[1]] + ".svg"
+    }
+
     let aiMode = false;
+    let countdownInterval = null;
     function SetActiveScreen(elemId) {
         document.getElementById("matchmaking").style.display = 'none';
         document.getElementById("searching").style.display = 'none';
@@ -223,26 +232,25 @@
                 
                 // countdown
                 roundSecondsRemaining = 10;
-                const countdownInterval = setInterval(() => {
+                countdownInterval = setInterval(() => {
                     --roundSecondsRemaining;
                     document.getElementById('countdown').textContent = "00:" + String(roundSecondsRemaining).padStart(2, '0');
 
                     // countdown finished
                     if (roundSecondsRemaining === 0) {
                         clearInterval(countdownInterval);
+                        countdownInterval = null;
                         document.getElementById('countdown').textContent = 'Time\'s up!';
 
                         if (aiMode)
-                        {
-                            // reveal AI choices
-
-                        }
+                            makeAiChoices();
+                        revealChoices();
                     }
                 }, 1000);
 
                 if (aiMode) {
                     // ready all 3 bots immediately
-                    document.getElementById("partnerChoice").src = "images/skull_icon.svg";
+                    document.getElementById("partnerChoice").src = "images/checkmark_icon.svg";
                     document.getElementById("partnerEnemyChoice").src = "images/checkmark_icon.svg";
                     document.getElementById("selfEnemyChoice").src = "images/checkmark_icon.svg";
                 }
@@ -250,11 +258,41 @@
         }
     }
 
+    function makeAiChoices() {
+        for (var i = 1; i < 4; ++i)
+            playerChoices[i] = choices.length * Math.random() | 0;
+    }
+
+    function makeChoice(moveInd) {
+        if (countdownInterval) {
+            playerChoices[0] = moveInd;
+            if (aiMode) {
+                // end countdown immediately upon selecting a choice in ai mode
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+                document.getElementById('countdown').textContent = 'Time\'s up!';
+                makeAiChoices();
+                revealChoices();
+            }
+        }
+    }
+
+    document.getElementById("rockChoice").addEventListener("click", function () {
+        makeChoice(0);
+    });
+
+    document.getElementById("paperChoice").addEventListener("click", function () {
+        makeChoice(1);
+    });
+
+    document.getElementById("scissorsChoice").addEventListener("click", function () {
+        makeChoice(2);
+    });
+
     document.getElementById("fightAIBtn").addEventListener("click", function () {
         aiMode = true;
         SetActiveScreen("game");
     });
-
 
     document.getElementById("findGameBtn").addEventListener("click", function () {
         aiMode = false;
