@@ -14,6 +14,9 @@ public class GameHub : Hub
     // rooms
     private static List<(string Team1Player1, string Team1Player2, string Team2Player1, string Team2Player2)> _rooms = [];
 
+    // player actions
+    private static Dictionary<string, string> _playerActions = [];
+
     public override async Task OnConnectedAsync()
     {
         _connectedUsers.Add(Context.ConnectionId);
@@ -24,17 +27,6 @@ public class GameHub : Hub
     {
         _connectedUsers.Remove(Context.ConnectionId);
         await base.OnDisconnectedAsync(exception);
-    }
-    
-    public async Task SendMove(string roomCode, string playerMove)
-    {
-        // broadcast the move to all players in the room
-        await Clients.Group(roomCode).SendAsync("ReceiveMove", playerMove);
-    }
-
-    public async Task JoinRoom(string roomCode)
-    {
-        await Groups.AddToGroupAsync(Context.ConnectionId.Substring(0, 8), roomCode);
     }
 
     private string GetFullConnectionId(string partialConnectionId) => _connectedUsers.First(u => u.StartsWith(partialConnectionId));
@@ -57,6 +49,33 @@ public class GameHub : Hub
         }
     }
 
+    public async Task SubmitMove(string action)
+    {
+        _playerActions[Context.ConnectionId.Substring(0, 8)] = action;
+    }
+    
+    public async Task StartRoundTimer((string team1Player1, string team1Player2, string team2Player1, string team2Player2) room)
+    {
+        await Task.Delay(10000);
+
+        // moves default to rock
+        string t1p1Move = _playerActions.ContainsKey(room.team1Player1) ? _playerActions[room.team1Player1] : "0";
+        string t1p2Move = _playerActions.ContainsKey(room.team1Player2) ? _playerActions[room.team1Player2] : "0";
+        string t2p1Move = _playerActions.ContainsKey(room.team2Player1) ? _playerActions[room.team2Player1] : "0";
+        string t2p2Move = _playerActions.ContainsKey(room.team2Player2) ? _playerActions[room.team2Player2] : "0";
+        
+        // clear moves after processing
+        _playerActions.Remove(room.team1Player1);
+        _playerActions.Remove(room.team1Player2);
+        _playerActions.Remove(room.team2Player1);
+        _playerActions.Remove(room.team2Player2);
+
+        // send moves to each client in their expected order
+        await Clients.Client(GetFullConnectionId(room.team1Player1)).SendAsync("ReceiveMoves", t1p1Move + t2p1Move + t1p2Move + t2p2Move);
+        await Clients.Client(GetFullConnectionId(room.team1Player2)).SendAsync("ReceiveMoves", t1p2Move + t2p2Move + t1p1Move + t2p1Move);
+        await Clients.Client(GetFullConnectionId(room.team2Player1)).SendAsync("ReceiveMoves", t2p1Move + t1p1Move + t2p2Move + t1p2Move);
+        await Clients.Client(GetFullConnectionId(room.team2Player2)).SendAsync("ReceiveMoves", t2p2Move + t1p2Move + t2p1Move + t1p1Move);
+    }
     private async Task MatchTeams(string player1, string player2)
     {
         // check if there is already a pair waiting
@@ -69,13 +88,16 @@ public class GameHub : Hub
             _waitingPairLeaders.Remove(team2Player1);
 
             // create a new room
-            _rooms.Add((player1, player2, team2Player1, team2Player2));
+            (string, string, string, string) room = (player1, player2, team2Player1, team2Player2);
+            _rooms.Add(room);
 
             // notify players that they have joined the room
             await Clients.Client(GetFullConnectionId(player1)).SendAsync("JoinRoom", player1, player2, team2Player1, team2Player2);
             await Clients.Client(GetFullConnectionId(player2)).SendAsync("JoinRoom", player1, player2, team2Player1, team2Player2);
             await Clients.Client(GetFullConnectionId(team2Player1)).SendAsync("JoinRoom", player1, player2, team2Player1, team2Player2);
             await Clients.Client(GetFullConnectionId(team2Player2)).SendAsync("JoinRoom", player1, player2, team2Player1, team2Player2);
+
+            await StartRoundTimer(room);
         }
         else
         {

@@ -196,7 +196,7 @@
 
     friendIdInput.addEventListener('input', function () {
         // restrict friend code input to alphanum
-        this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+        this.value = this.value.replace(/[^a-zA-Z0-9-_]/g, '');
 
         // tether 'find game' button state to friend code input validity
         document.getElementById("findGameBtn").disabled = this.value.length > 0 && this.value.length < 8;
@@ -217,10 +217,6 @@
                 // display guid
                 document.getElementById('GUID-TEXT').innerText = `${connection.connectionId.substring(0, 8)}`;
                 document.getElementById('GUID-TEXT-2').innerText = `${connection.connectionId.substring(0, 8)}`;
-
-                // room connection test
-                const roomCode = "room1";
-                connection.invoke("JoinRoom", roomCode).catch(err => console.error(err));
             })
             .catch(err => console.error("Error while starting SignalR connection: " + err));
     }
@@ -504,6 +500,10 @@
                 makeAiChoices();
                 revealChoices();
             }
+            else {
+                connection.invoke("SubmitMove", "" + moveInd)
+                    .catch(err => console.error("Error submitting action: " + err));
+            }
         }
     }
 
@@ -546,14 +546,14 @@
     });
 
     // listen for moves
-    connection.on("ReceiveMove", function (playerMove) {
-        console.log("move received: " + playerMove);
+    connection.on("ReceiveMoves", function (playerMoves) {
+        alert("moves received: " + playerMoves);
     });
 
     connection.on("JoinRoom", function (team1Player1, team1Player2, team2Player1, team2Player2) {
         // display room info
-        alert(`Team 1: ${team1Player1}, ${team1Player2}`);
-        alert(`Team 2: ${team2Player1}, ${team2Player2}`);
+        // alert(`Team 1: ${team1Player1}, ${team1Player2}`);
+        // alert(`Team 2: ${team2Player1}, ${team2Player2}`);
         SetActiveScreen("game");
     });
 </script>
