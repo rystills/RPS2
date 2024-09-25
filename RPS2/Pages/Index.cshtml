@@ -3,7 +3,7 @@
 
 <main>
     <!-- homepage (matchmaking) -->
-    <section id="matchmaking" class="center">
+    <section id="matchmaking" class="center" style="display:none">
         <section style="text-align: center; padding:1px">
             <img src="images/Logo.svg" class="mb-5 logo" />
         </section>
@@ -17,8 +17,8 @@
             <div class="d-flex justify-content-center mb-5">
                 <label class="note">*optional: leave blank for automatic matchmaking</label>
             </div>
-            <button id="findGameBtn" class="btn btn-primary mt-5">Find game &raquo;</button>
-            <button id="fightAIBtn" class="btn btn-primary mt-5">VS AI</button>
+            <a id="findGameBtn" class="btn btn-primary mt-5">Find game &raquo;</a>
+            <a id="fightAIBtn" class="btn btn-primary mt-5">VS AI</a>
 
             <div class="d-flex justify-content-end me-5">
                 <div style="flex-direction: column; display:flex">
@@ -59,11 +59,29 @@
         <section style="text-align: center; padding:1px">
             <label class="friend-note">Still waiting? Share your code again!</label>
         </section>
+    </section>
 
+    <!-- results -->
+    <section id="results" class="center" style="display:none">
+        <section style="text-align: center; padding:1px">
+            <img src="images/Logo.svg" class="logo" />
+        </section>
+        <section style="text-align: center; padding:1px">
+            <label id="resultsText" class="results-text"> You win! </label>
+        </section>
+        <section style="text-align: center; padding:1px">
+            <a id="playAgainBtn" class="btn btn-primary mt-5">Play again</a>
+        </section>
+        <section style="text-align: center; padding:1px">
+            <a href="https://store.steampowered.com/app/3107360/Grooveyard/" rel="noopener noreferrer" target="_blank" class="btn btn-primary mt-1">Check out Grooveyard on Steam</a>
+        </section>
+        <section style="text-align: center; padding:1px">
+            <a href="https://store.steampowered.com/app/2217000/Rivals_of_Aether_II/" rel="noopener noreferrer" target="_blank" class="btn btn-primary mt-1">Check out Rivals of Aether II on Steam</a>
+        </section>
     </section>
 
     <!-- gameplay -->
-    <section id="game" style="display:none">
+    <section id="game" style="display:unset">
         <div class="container">
             <div class="top-row">
                 <div class="d-flex justify-content-center">
@@ -71,10 +89,12 @@
                         <span class="player-name-top">
                             Friend
                         </span>
-                        <div class="item">
-                            <div id="partnerChoiceWait" class="spinner-border spinner-card" role="status" style="display:none">
+                        <div class="choose-item-invis">
+                            <div class="item">
+                                <div id="partnerChoiceWait" class="spinner-border spinner-card" role="status" style="display:none">
+                                </div>
+                                <img id="partnerChoice" src="images/checkmark_icon.svg" style="" />
                             </div>
-                            <img id="partnerChoice" src="images/checkmark_icon.svg" style="" />
                         </div>
                     </div>
                 </div>
@@ -91,10 +111,13 @@
                         <span class="player-name-top">
                             Enemy1
                         </span>
-                        <div class="item">
-                            <div id="partnerEnemyChoiceWait" class="spinner-border spinner-card" role="status" style="display:none">
+                        <div class="choose-item-invis">
+
+                            <div class="item">
+                                <div id="partnerEnemyChoiceWait" class="spinner-border spinner-card" role="status" style="display:none">
+                                </div>
+                                <img id="partnerEnemyChoice" src="images/checkmark_icon.svg" style="" />
                             </div>
-                            <img id="partnerEnemyChoice" src="images/checkmark_icon.svg" style="" />
                         </div>
                     </div>
                 </div>
@@ -122,8 +145,10 @@
                             <img id="paperChoice" src="images/paper.svg" />
                             <img id="scissorsChoice" src="images/scissors.svg" />
                         </div>
-                        <div id="selfChoiceDiv" class="item" style="display:none !important">
-                            <img id="selfChoice" src="images/rock.svg" />
+                        <div id="selfChoiceDiv" class="choose-item-invis" style="display:none !important">
+                            <div class="item">
+                                <img id="selfChoice" src="images/rock.svg" />
+                            </div>
                         </div>
                         <span class="player-name-bottom">
                             You!
@@ -133,10 +158,13 @@
                 <div></div>
                 <div class="d-flex justify-content-center">
                     <div class="d-flex align-items-center flex-column">
-                        <div class="item">
-                            <div id="selfEnemyChoiceWait" class="spinner-border spinner-card" role="status" style="display:none">
+                        <div class="choose-item-invis">
+
+                            <div class="item">
+                                <div id="selfEnemyChoiceWait" class="spinner-border spinner-card" role="status" style="display:none">
+                                </div>
+                                <img id="selfEnemyChoice" src="images/checkmark_icon.svg" />
                             </div>
-                            <img id="selfEnemyChoice" src="images/checkmark_icon.svg" />
                         </div>
                         <span class="player-name-bottom">
                             Enemy2
@@ -385,11 +413,13 @@
             if (--resultsSecondsRemaining == 0) {
                 if (teamWins >= starsToWin) {
                     reset();
-                    SetActiveScreen("matchmaking"); // TODO: go to win screen
+                    document.getElementById('resultsText').innerText = "You win!"
+                    SetActiveScreen("results");
                 }
                 else if (enemyWins >= starsToWin) {
                     reset();
-                    SetActiveScreen("matchmaking"); // TODO: go to lose screen here
+                    document.getElementById('resultsText').innerText = "You lose!"
+                    SetActiveScreen("results");
                 }
                 else {
                     // start next round
@@ -440,7 +470,7 @@
         document.getElementById("matchmaking").style.display = 'none';
         document.getElementById("searching").style.display = 'none';
         document.getElementById("game").style.display = 'none';
-        // document.getElementById("results").style.display = 'none';
+        document.getElementById("results").style.display = 'none';
         document.getElementById(elemId).style.display = 'unset';
 
         // perform necessary operations on screen change
@@ -502,9 +532,13 @@
         SetActiveScreen("game");
     });
 
+    document.getElementById("playAgainBtn").addEventListener("click", function () {
+        SetActiveScreen("matchmaking");
+    });
+
     document.getElementById("findGameBtn").addEventListener("click", function () {
         aiMode = false;
-        
+
         // start matchmaking
         SetActiveScreen("searching");
         connection.invoke("StartMatchmaking", document.getElementById("friendIdInput").value)
