@@ -51,8 +51,10 @@
         <div class="container">
             <div class="top-row">
                 <div class="d-flex justify-content-center">
-                    <div class="item ms-5">
-                        <img id="partnerChoice" src="images/mystery.png" />
+                    <div class="item">
+                        <div id="partnerChoiceWait" class="spinner-border spinner-card" role="status" style="display:none">
+                        </div>
+                        <img id="partnerChoice" src="images/checkmark_icon.png" style=""/>
                     </div>
                 </div>
                 <div>
@@ -61,8 +63,10 @@
                     </section>
                 </div>
                 <div class="d-flex justify-content-center">
-                    <div class="item ms-5">
-                        <img id="partnerEnemyChoice" src="images/mystery.png" />
+                    <div class="item">
+                        <div id="partnerEnemyChoiceWait" class="spinner-border spinner-card" role="status" style="display:none">
+                        </div>
+                        <img id="partnerEnemyChoice" src="images/checkmark_icon.png" style=""/>
                     </div>
                 </div>
             </div>
@@ -81,7 +85,6 @@
                     <img id="enemy_filled_star_1" src="images/star_filled.png" class="star" style="display:none" />
                     <img id="enemy_filled_star_2" src="images/star_filled.png" class="star" style="display:none" />
                 </div>
-
             </div>
             
             <div class="bottom-row">
@@ -92,15 +95,15 @@
                         <img id="scissorsChoice" src="images/scissors.png" />
                     </div>
                     <div class="item" style="display:none !important">
-                        <img id="selfRock" src="images/rock.png" style="display:unset"/>
-                        <img id="selfPaper" src="images/paper.png" style="display:none" />
-                        <img id="selfScissors" src="images/scissors.png" style="display:none"/>
+                        <img id="selfChoice" src="images/rock.png" style="display:none" />
                     </div>
                 </div>
                 <div></div>
                 <div class="d-flex justify-content-center">
                     <div class="item">
-                        <img id="selfEnemyChoice" src="images/mystery.png" />
+                        <div id="partnerChoiceWait" class="spinner-border spinner-card" role="status">
+                        </div>
+                        <img id="selfEnemyChoice" src="images/mystery.png" style="display:none"/>
                     </div>
                 </div>
             </div>
@@ -172,9 +175,9 @@
             case "game":
                 if (aiMode) {
                     // ready all 3 bots immediately
-                    document.getElementById("partnerChoice").src = "images/mysteryReady.png";
-                    document.getElementById("partnerEnemyChoice").src = "images/mysteryReady.png";
-                    document.getElementById("selfEnemyChoice").src = "images/mysteryReady.png";
+                    document.getElementById("partnerChoice").src = "images/rock.png";
+                    document.getElementById("partnerEnemyChoice").src = "images/checkmark_icon.png";
+                    document.getElementById("selfEnemyChoice").src = "images/checkmark_icon.png";
                 }
                 break;
         }
