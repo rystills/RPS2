@@ -235,12 +235,14 @@
                 countdownInterval = setInterval(() => {
                     --roundSecondsRemaining;
                     document.getElementById('countdown').textContent = "00:" + String(roundSecondsRemaining).padStart(2, '0');
+                    document.getElementById('countdown').style.color = roundSecondsRemaining > 5 ? "white" : roundSecondsRemaining > 3 ? "orange" : "red";
 
                     // countdown finished
                     if (roundSecondsRemaining === 0) {
                         clearInterval(countdownInterval);
                         countdownInterval = null;
                         document.getElementById('countdown').textContent = 'Time\'s up!';
+                        document.getElementById('countdown').style.color = "blue";
 
                         if (aiMode)
                             makeAiChoices();
@@ -271,6 +273,7 @@
                 clearInterval(countdownInterval);
                 countdownInterval = null;
                 document.getElementById('countdown').textContent = 'Time\'s up!';
+                document.getElementById('countdown').style.color = "blue";
                 makeAiChoices();
                 revealChoices();
             }
