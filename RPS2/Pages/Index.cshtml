@@ -83,7 +83,7 @@
                         <h1 id="round" class="round-text">Round 1</h1>
                     </section>
                     <section style="text-align: center;">
-                        <h1 id="round" class="countdown">00:10</h1>
+                        <h1 id="countdown" class="countdown">00:10</h1>
                     </section>
                 </div>
                 <div class="d-flex justify-content-center">
@@ -161,6 +161,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.0/signalr.min.js"></script>
 <script>
     let quips = ["Scissors at the ready", "Avalanche incoming", "Paper uncovered"];
+    let roundSecondsRemaining = 0;
 
     friendIdInput.addEventListener('input', function() {
         // restrict friend code input to alphanum
@@ -219,6 +220,26 @@
                 document.getElementById("waitingQuip").innerText = quips[quips.length * Math.random() | 0] + "... Just waiting for your friend to join the fray!(1 / 4)";
                 break;
             case "game":
+                
+                // countdown
+                roundSecondsRemaining = 10;
+                const countdownInterval = setInterval(() => {
+                    --roundSecondsRemaining;
+                    document.getElementById('countdown').textContent = "00:" + String(roundSecondsRemaining).padStart(2, '0');
+
+                    // countdown finished
+                    if (roundSecondsRemaining === 0) {
+                        clearInterval(countdownInterval);
+                        document.getElementById('countdown').textContent = 'Time\'s up!';
+
+                        if (aiMode)
+                        {
+                            // reveal AI choices
+
+                        }
+                    }
+                }, 1000);
+
                 if (aiMode) {
                     // ready all 3 bots immediately
                     document.getElementById("partnerChoice").src = "images/skull_icon.svg";
