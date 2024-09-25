@@ -5,7 +5,7 @@
     <!-- homepage (matchmaking) -->
     <section id="matchmaking" class="center">
         <section style="text-align: center; padding:1px">
-            <img src="images/Logo.png" class="mb-5"/>
+            <img src="images/Logo.svg" class="mb-5 logo"/>
         </section>
         <section style="text-align:center; padding:1px" class="mt-5">
             <div class="d-flex justify-content-center mb-4">
@@ -22,10 +22,14 @@
 
             <div class="d-flex justify-content-end me-5">
                 <div style="flex-direction: column; display:flex">
-                    <img src="images/play_with_friend.png" />
-                    <a id="GUID" class="btn btn-primary mt-3">
-                        <img src="images/copy_icon.png" class="ms-3" style="text-align:right"/>
-                    </a>
+                    <img src="images/play_with_friend.svg" class="play-friends"/>
+                    <div>
+                        <a id="GUID" class="btn btn-primary mt-3">
+                            <span id="GUID-TEXT">
+                            </span>
+                            <img src="images/copy_icon.svg" class="ms-3" style="text-align:right; height:2rem; width: auto" />
+                        </a>
+                    </div>
                 </div>
             </div>
         </section>
@@ -34,7 +38,7 @@
     <!-- searching -->
     <section id="searching" class="center" style="display:none">
         <section style="text-align: center; padding:1px">
-            <img src="images/Logo.png" class="mb-5" />
+            <img src="images/Logo.svg" class="mb-5" />
         </section>
         <section style="text-align:center; padding:1px" class="mt-5 mb-5">
             <div class="spinner-border" role="status">
@@ -54,7 +58,7 @@
                     <div class="item">
                         <div id="partnerChoiceWait" class="spinner-border spinner-card" role="status" style="display:none">
                         </div>
-                        <img id="partnerChoice" src="images/checkmark_icon.png" style=""/>
+                        <img id="partnerChoice" src="images/checkmark_icon.svg" style=""/>
                     </div>
                 </div>
                 <div>
@@ -66,7 +70,7 @@
                     <div class="item">
                         <div id="partnerEnemyChoiceWait" class="spinner-border spinner-card" role="status" style="display:none">
                         </div>
-                        <img id="partnerEnemyChoice" src="images/checkmark_icon.png" style=""/>
+                        <img id="partnerEnemyChoice" src="images/checkmark_icon.svg" style=""/>
                     </div>
                 </div>
             </div>
@@ -74,28 +78,28 @@
 
             <div class="middle-row">
                 <div class="star-container">
-                    <img id="team_empty_star_1" src="images/star_empty.png" class="star" style="display:unset" />
-                    <img id="team_empty_star_2" src="images/star_empty.png" class="star" style="display:unset" />
-                    <img id="team_filled_star_1" src="images/star_filled.png" class="star" style="display:none" />
-                    <img id="team_filled_star_2" src="images/star_filled.png" class="star" style="display:none" />
+                    <img id="team_empty_star_1" src="images/star_empty.svg" class="star" style="display:unset" />
+                    <img id="team_empty_star_2" src="images/star_empty.svg" class="star" style="display:unset" />
+                    <img id="team_filled_star_1" src="images/star_filled.svg" class="star" style="display:none" />
+                    <img id="team_filled_star_2" src="images/star_filled.svg" class="star" style="display:none" />
                 </div>
                 <div class="star-container">
-                    <img id="enemy_empty_star_1" src="images/star_empty.png" class="star" style="display:unset" />
-                    <img id="enemy_empty_star_2" src="images/star_empty.png" class="star" style="display:unset"/>
-                    <img id="enemy_filled_star_1" src="images/star_filled.png" class="star" style="display:none" />
-                    <img id="enemy_filled_star_2" src="images/star_filled.png" class="star" style="display:none" />
+                    <img id="enemy_empty_star_1" src="images/star_empty.svg" class="star" style="display:unset" />
+                    <img id="enemy_empty_star_2" src="images/star_empty.svg" class="star" style="display:unset"/>
+                    <img id="enemy_filled_star_1" src="images/star_filled.svg" class="star" style="display:none" />
+                    <img id="enemy_filled_star_2" src="images/star_filled.svg" class="star" style="display:none" />
                 </div>
             </div>
             
             <div class="bottom-row">
                 <div class="d-flex justify-content-center">
                     <div class="choose-item" style="">
-                        <img id="rockChoice" src="images/rock.png" />
-                        <img id="paperChoice" src="images/paper.png" />
-                        <img id="scissorsChoice" src="images/scissors.png" />
+                        <img id="rockChoice" src="images/rock.svg" />
+                        <img id="paperChoice" src="images/paper.svg" />
+                        <img id="scissorsChoice" src="images/scissors.svg" />
                     </div>
                     <div class="item" style="display:none !important">
-                        <img id="selfChoice" src="images/rock.png" style="display:none" />
+                        <img id="selfChoice" src="images/rock.svg" style="display:none" />
                     </div>
                 </div>
                 <div></div>
@@ -103,7 +107,7 @@
                     <div class="item">
                         <div id="partnerChoiceWait" class="spinner-border spinner-card" role="status">
                         </div>
-                        <img id="selfEnemyChoice" src="images/mystery.png" style="display:none"/>
+                        <img id="selfEnemyChoice" src="images/checkmark_icon.svg" style="display:none"/>
                     </div>
                 </div>
             </div>
@@ -137,7 +141,7 @@
     }
 
     // display guid
-    document.getElementById('GUID').innerText = `Your ID: ${userId}`;
+    document.getElementById('GUID-TEXT').innerText = `${userId}`;
 
 
     // create the SignalR connection
@@ -175,9 +179,9 @@
             case "game":
                 if (aiMode) {
                     // ready all 3 bots immediately
-                    document.getElementById("partnerChoice").src = "images/rock.png";
-                    document.getElementById("partnerEnemyChoice").src = "images/checkmark_icon.png";
-                    document.getElementById("selfEnemyChoice").src = "images/checkmark_icon.png";
+                    document.getElementById("partnerChoice").src = "images/rock.svg";
+                    document.getElementById("partnerEnemyChoice").src = "images/checkmark_icon.svg";
+                    document.getElementById("selfEnemyChoice").src = "images/checkmark_icon.svg";
                 }
                 break;
         }

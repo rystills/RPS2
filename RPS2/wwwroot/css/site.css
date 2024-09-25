@@ -169,3 +169,15 @@ textarea {
     width: 3.5rem;
     height: 3.5rem;
 }
+
+.logo {
+    width:50rem;
+    height:auto;
+}
+
+.play-friends {
+    width: 12rem;
+    height:auto;
+    align-self: end;
+}
+
