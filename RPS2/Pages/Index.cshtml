@@ -174,32 +174,22 @@
         document.getElementById("findGameBtn").disabled = this.value.length > 0 && this.value.length < 8;
     });
 
-    function generateUserId() {
-        return crypto.randomUUID().substring(0, 8);
-    }
-
-    // generate new guid
-    let userId = localStorage.getItem('userId');
-    if (!userId) {
-        userId = generateUserId();
-        localStorage.setItem('userId', userId);
-    }
-
-    // display guid
-    document.getElementById('GUID-TEXT').innerText = `${userId}`;
-    document.getElementById('GUID-TEXT-2').innerText = `${userId}`;
-
 
     // create the SignalR connection
     const connection = new signalR.HubConnectionBuilder()
         .withUrl("/gamehub")
         .build();
+    startConnection();
 
     function startConnection() {
         connection.start()
             .then(() => {
                 console.log("SignalR connected");
 
+                // display guid
+                document.getElementById('GUID-TEXT').innerText = `${connection.connectionId.substring(0, 8)}`;
+                document.getElementById('GUID-TEXT-2').innerText = `${connection.connectionId.substring(0, 8)}`;
+                
                 // room connection test
                 const roomCode = "room1";
                 connection.invoke("JoinRoom", roomCode).catch(err => console.error(err));
@@ -375,7 +365,6 @@
     document.getElementById("findGameBtn").addEventListener("click", function () {
         aiMode = false;
         SetActiveScreen("searching");
-        // startConnection();
     });
 
     // listen for moves
