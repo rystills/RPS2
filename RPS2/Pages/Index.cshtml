@@ -38,7 +38,7 @@
     <!-- searching -->
     <section id="searching" class="center" style="display:none">
         <section style="text-align: center; padding:1px">
-            <img src="images/Logo.svg" class="mb-5" />
+            <img src="images/Logo.svg" class="logo" />
         </section>
         <section style="text-align:center; padding:1px" class="mt-5 mb-5">
             <div class="spinner-border" role="status">
@@ -48,6 +48,18 @@
         <section style="text-align: center; padding:1px">
             <label id="waitingQuip" class="waiting-text"></label>
         </section>
+        <section style="text-align: center; padding:1px">
+            <a id="GUID" class="btn btn-primary mt-5">
+                <span id="GUID-TEXT-2">
+                    asdfasdf
+                </span>
+                <img src="images/copy_icon.svg" class="ms-3" style="text-align:right; height:2rem; width: auto" />
+            </a>
+        </section>
+        <section style="text-align: center; padding:1px">
+            <label class="friend-note">Still waiting? Share your code again!</label>
+        </section>
+
     </section>
 
     <!-- gameplay -->
@@ -73,7 +85,6 @@
                     <section style="text-align: center;">
                         <h1 id="round" class="countdown">00:10</h1>
                     </section>
-
                 </div>
                 <div class="d-flex justify-content-center">
                     <div class="d-flex align-items-center flex-column">
@@ -172,6 +183,7 @@
 
     // display guid
     document.getElementById('GUID-TEXT').innerText = `${userId}`;
+    document.getElementById('GUID-TEXT-2').innerText = `${userId}`;
 
 
     // create the SignalR connection

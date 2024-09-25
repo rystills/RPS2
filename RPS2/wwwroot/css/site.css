@@ -32,6 +32,14 @@ textarea {
     width: 50%;
 }
 
+.friend-note {
+    font-size: 16px !important;
+    color: white;
+    display: inline-block;
+    text-align: center;
+    width: 50%;
+}
+
 .waiting-text {
     font-size: 40px !important;
     color: white;
