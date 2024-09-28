@@ -564,6 +564,18 @@
         revealChoices();
     });
 
+    connection.on("PlayerMoved", function (playerIndex) {
+        // reveal player choices
+        if (playerIndex == 2)
+            document.getElementById('partnerChoice').src = "images/checkmark_icon.svg"
+
+        if (playerIndex == 3)
+            document.getElementById('partnerEnemyChoice').src = "images/checkmark_icon.svg"
+
+        if (playerIndex == 1)
+            document.getElementById('selfEnemyChoice').src = "images/checkmark_icon.svg"
+    });
+
     // listen for moves
     connection.on("log", function (playerMoves) {
         console.log(playerMoves);

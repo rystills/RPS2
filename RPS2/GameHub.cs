@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using System.Diagnostics;
 
 public class GameHub : Hub
 {
@@ -71,8 +72,9 @@ public class GameHub : Hub
         }
     }
 
-    public async Task SubmitMove(string action)
+    public void SubmitMove(string action)
     {
+        Debug.WriteLine(Context.ConnectionId + " " + action);
         _playerActions[Context.ConnectionId.Substring(0, 8)] = action;
     }
     
@@ -81,7 +83,6 @@ public class GameHub : Hub
         int divisions = 10;
         for (int div = 0; div < divisions; div++)
         {
-            // TODO: at the moment this still doesn't let us end early, not sure why
             string[] roomPlayers = { room.team1Player1, room.team1Player2, room.team2Player1, room.team2Player2 };
             if (roomPlayers.All(_playerActions.ContainsKey))
             {
@@ -109,6 +110,7 @@ public class GameHub : Hub
         await Clients.Client(GetFullConnectionId(room.team2Player1)).SendAsync("ReceiveMoves", t2p1Move + t1p1Move + t2p2Move + t1p2Move);
         await Clients.Client(GetFullConnectionId(room.team2Player2)).SendAsync("ReceiveMoves", t2p2Move + t1p2Move + t2p1Move + t1p1Move);
     }
+
     private async Task MatchTeams(string player1, string player2)
     {
         // check if there is already a pair waiting
