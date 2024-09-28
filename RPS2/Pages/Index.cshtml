@@ -501,6 +501,11 @@
     function makeChoice(moveInd) {
         if (countdownInterval) {
             playerChoices[0] = moveInd;
+            if (playersAlive[0]) {
+                document.getElementById('chooseItem').style.setProperty('display', 'none', 'important');
+                document.getElementById('selfChoiceDiv').style.setProperty('display', 'flex', 'important');
+                document.getElementById('selfChoice').src = "images/checkmark_icon.svg"
+            }
             if (aiMode) {
                 makeAiChoices();
                 revealChoices();
