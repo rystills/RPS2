@@ -7,7 +7,10 @@ public class GameHub : Hub
 
     // players connected to matchmaking
     private static Dictionary<string, string> _waitingPlayers = [];
-    
+
+    // players connected to random matchmaking
+    private static Queue<string> _waitingRandoms = new Queue<String>();
+
     // teams in matchmaking step 2
     private static Dictionary<string, string> _waitingPairLeaders = [];
     
@@ -37,17 +40,34 @@ public class GameHub : Hub
     {
         string userConnectionId = Context.ConnectionId.Substring(0, 8);
 
-        // check if friend has already requested user
-        if (_waitingPlayers.ContainsKey(friendConnectionId) && _waitingPlayers[friendConnectionId] == userConnectionId)
+
+        if (friendConnectionId.Length == 0)
         {
-            // user and friend requested each other; attempt team matchmaking
-            _waitingPlayers.Remove(friendConnectionId);
-            await MatchTeams(friendConnectionId, userConnectionId);
+            string possibleFriend;
+            if (_waitingRandoms.TryDequeue(out possibleFriend))
+            {
+                await MatchTeams(userConnectionId, possibleFriend);
+            }
+            else
+            {
+                _waitingRandoms.Enqueue(userConnectionId);
+            }
         }
+
         else
         {
-            // add user to waiting list, requesting friend
-            _waitingPlayers[userConnectionId] = friendConnectionId;
+            // check if friend has already requested user
+            if (_waitingPlayers.ContainsKey(friendConnectionId) && _waitingPlayers[friendConnectionId] == userConnectionId)
+            {
+                // user and friend requested each other; attempt team matchmaking
+                _waitingPlayers.Remove(friendConnectionId);
+                await MatchTeams(friendConnectionId, userConnectionId);
+            }
+            else
+            {
+                // add user to waiting list, requesting friend
+                _waitingPlayers[userConnectionId] = friendConnectionId;
+            }
         }
     }
 
