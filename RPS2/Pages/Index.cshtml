@@ -258,23 +258,26 @@
 
         // countdown
         roundSecondsRemaining = 10;
+
+        // if aiMode and you are dead, don't make you wait
+        if (!playersAlive[0] && aiMode) {
+            roundSecondsRemaining = 2;
+        }
+
         document.getElementById('countdown').textContent = "00:" + String(roundSecondsRemaining).padStart(2, '0');
         document.getElementById('countdown').style.color = roundSecondsRemaining > 5 ? "white" : roundSecondsRemaining > 3 ? "orange" : "red";
         countdownInterval = setInterval(() => {
-            --roundSecondsRemaining;
-            document.getElementById('countdown').textContent = "00:" + String(roundSecondsRemaining).padStart(2, '0');
-            document.getElementById('countdown').style.color = roundSecondsRemaining > 5 ? "white" : roundSecondsRemaining > 3 ? "orange" : "red";
-
-            // countdown finished
+            if (roundSecondsRemaining > 0) {
+                --roundSecondsRemaining;
+                document.getElementById('countdown').textContent = "00:" + String(roundSecondsRemaining).padStart(2, '0');
+                document.getElementById('countdown').style.color = roundSecondsRemaining > 5 ? "white" : roundSecondsRemaining > 3 ? "orange" : "red";
+            }
+            // countdown finished, in aimode show next round, otherwise wait for server
             if (roundSecondsRemaining === 0) {
-                clearInterval(countdownInterval);
-                countdownInterval = null;
-                document.getElementById('countdown').textContent = 'Results';
-                document.getElementById('countdown').style.color = "white";
-
-                if (aiMode)
+                if (aiMode) {
                     makeAiChoices();
-                revealChoices();
+                    revealChoices();
+                }
             }
         }, 1000);
 
@@ -314,6 +317,14 @@
     }
 
     function revealChoices() {
+        // Clear countdown interval
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+
+        // Update countdown text
+        document.getElementById('countdown').textContent = 'Results';
+        document.getElementById('countdown').style.color = "white";
+
         // reveal player choices
         if (playersAlive[2])
             document.getElementById('partnerChoice').src = "images/" + moveOptions[playerChoices[2]] + ".svg"
@@ -436,7 +447,6 @@
         enemyWins = 0;
         teamWins = 0;
         playersAlive = [true, true, true, true];
-
     }
 
     function winRound() {
@@ -492,11 +502,6 @@
         if (countdownInterval) {
             playerChoices[0] = moveInd;
             if (aiMode) {
-                // end countdown immediately upon selecting a choice in ai mode
-                clearInterval(countdownInterval);
-                countdownInterval = null;
-                document.getElementById('countdown').textContent = 'Results';
-                document.getElementById('countdown').style.color = "white";
                 makeAiChoices();
                 revealChoices();
             }
@@ -548,6 +553,10 @@
     // listen for moves
     connection.on("ReceiveMoves", function (playerMoves) {
         alert("moves received: " + playerMoves);
+        for(let i = 0; i < playerMoves.length; i++){
+            playerChoices[i] = playerMoves[i];
+        }
+        revealChoices();
     });
 
     connection.on("JoinRoom", function (team1Player1, team1Player2, team2Player1, team2Player2) {

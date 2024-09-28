@@ -17,6 +17,8 @@ public class GameHub : Hub
     // player actions
     private static Dictionary<string, string> _playerActions = [];
 
+    private static int _roundTime = 10000;
+
     public override async Task OnConnectedAsync()
     {
         _connectedUsers.Add(Context.ConnectionId);
@@ -56,7 +58,16 @@ public class GameHub : Hub
     
     public async Task StartRoundTimer((string team1Player1, string team1Player2, string team2Player1, string team2Player2) room)
     {
-        await Task.Delay(10000);
+        for(int div = 0; div < 10; div++)
+        {
+            string[] roomPlayers = { room.team1Player1, room.team1Player2, room.team2Player1, room.team2Player2 };
+            if (roomPlayers.All(_playerActions.ContainsKey))
+            {
+                break;
+            }
+            await Task.Delay(_roundTime/div);
+        }
+        
 
         // moves default to rock
         string t1p1Move = _playerActions.ContainsKey(room.team1Player1) ? _playerActions[room.team1Player1] : "0";
