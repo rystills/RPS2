@@ -9,7 +9,7 @@ public class GameHub : Hub
     private static Dictionary<string, string> _waitingPlayers = [];
 
     // players connected to random matchmaking
-    private static Queue<string> _waitingRandoms = new Queue<String>();
+    private static Queue<string> _waitingRandoms = new();
 
     // teams in matchmaking step 2
     private static Dictionary<string, string> _waitingPairLeaders = [];
