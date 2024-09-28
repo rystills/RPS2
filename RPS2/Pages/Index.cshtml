@@ -48,7 +48,7 @@
         <section style="text-align: center; padding:1px">
             <label id="waitingQuip" class="waiting-text"></label>
         </section>
-        <section style="text-align: center; padding:1px">
+        <section id="searchingCodeButton" style="text-align: center; padding:1px">
             <a id="GUID-2" class="btn btn-primary mt-5">
                 <span id="GUID-TEXT-2">
                     asdfasdf
@@ -56,7 +56,7 @@
                 <img src="images/copy_icon.svg" class="ms-3" style="text-align:right; height:2rem; width: auto" />
             </a>
         </section>
-        <section style="text-align: center; padding:1px">
+        <section id="searchingCodeLabel" style="text-align: center; padding:1px">
             <label class="friend-note">Still waiting? Share your code again!</label>
         </section>
     </section>
@@ -486,6 +486,8 @@
                 break;
             case "searching":
                 document.getElementById("waitingQuip").innerText = quips[quips.length * Math.random() | 0] + "... Just waiting for your friend to join the fray!(1 / 4)";
+                document.getElementById("searchingCodeButton").style.display = 
+                    document.getElementById("searchingCodeLabel").style.display = document.getElementById("friendIdInput").value.length == 0 ? 'none' : 'visible';
                 break;
             case "game":
                 reset();
