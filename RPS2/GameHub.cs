@@ -58,16 +58,18 @@ public class GameHub : Hub
     
     public async Task StartRoundTimer((string team1Player1, string team1Player2, string team2Player1, string team2Player2) room)
     {
-        for(int div = 0; div < 10; div++)
+        int divisions = 10;
+        for (int div = 0; div < 10; div++)
         {
+            // TODO: at the moment this still doesn't let us end early, not sure why
             string[] roomPlayers = { room.team1Player1, room.team1Player2, room.team2Player1, room.team2Player2 };
             if (roomPlayers.All(_playerActions.ContainsKey))
             {
                 break;
             }
-            await Task.Delay(_roundTime/div);
+            await Task.Delay(_roundTime / divisions);
         }
-        
+
 
         // moves default to rock
         string t1p1Move = _playerActions.ContainsKey(room.team1Player1) ? _playerActions[room.team1Player1] : "0";

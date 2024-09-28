@@ -559,6 +559,11 @@
         revealChoices();
     });
 
+    // listen for moves
+    connection.on("log", function (playerMoves) {
+        console.log(playerMoves);
+    });
+
     connection.on("JoinRoom", function (team1Player1, team1Player2, team2Player1, team2Player2) {
         // display room info
         // alert(`Team 1: ${team1Player1}, ${team1Player2}`);
