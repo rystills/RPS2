@@ -87,17 +87,18 @@ public class GameHub : Hub
     
     public async Task StartRoundTimer((string team1Player1, string team1Player2, string team2Player1, string team2Player2) room)
     {
+        // wait for round timer to expire, or for all players to submit their move
         int divisions = 10;
         for (int div = 0; div < divisions; div++)
         {
             string[] roomPlayers = { room.team1Player1, room.team1Player2, room.team2Player1, room.team2Player2 };
+            // TODO: don't require an action for dead players
             if (roomPlayers.All(_playerActions.ContainsKey))
             {
                 break;
             }
             await Task.Delay(_roundTime / divisions);
         }
-
 
         // moves default to rock
         string t1p1Move = _playerActions.ContainsKey(room.team1Player1) ? _playerActions[room.team1Player1] : "0";
@@ -117,6 +118,15 @@ public class GameHub : Hub
         await _hubContext.Clients.Client(GetFullConnectionId(room.team2Player1)).SendAsync("ReceiveMoves", t2p1Move + t1p1Move + t2p2Move + t1p2Move);
         await _hubContext.Clients.Client(GetFullConnectionId(room.team2Player2)).SendAsync("ReceiveMoves", t2p2Move + t1p2Move + t2p1Move + t1p1Move);
 
+        // wait 3 seconds and then start the next round
+        // TODO: stop on game over
+        await Task.Delay(3000);
+        await _hubContext.Clients.Client(GetFullConnectionId(room.team1Player1)).SendAsync("StartRound");
+        await _hubContext.Clients.Client(GetFullConnectionId(room.team1Player2)).SendAsync("StartRound");
+        await _hubContext.Clients.Client(GetFullConnectionId(room.team2Player1)).SendAsync("StartRound");
+        await _hubContext.Clients.Client(GetFullConnectionId(room.team2Player2)).SendAsync("StartRound");
+        
+        _ = StartRoundTimer(room);
     }
 
     private async Task MatchTeams(string player1, string player2)

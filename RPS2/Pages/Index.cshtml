@@ -430,7 +430,8 @@
                 }
                 else {
                     // start next round
-                    startNextRound();
+                    if (aiMode)
+                        startNextRound();
                 }
 
                 clearInterval(resultsInterval);
@@ -557,11 +558,14 @@
 
     // listen for moves
     connection.on("ReceiveMoves", function (playerMoves) {
-        alert("moves received: " + playerMoves);
-        for(let i = 0; i < playerMoves.length; i++){
+        for (let i = 0; i < playerMoves.length; ++i)
             playerChoices[i] = playerMoves[i];
-        }
         revealChoices();
+    });
+
+    // start next round
+    connection.on("StartRound", function () {
+        startNextRound();
     });
 
     connection.on("PlayerMoved", function (playerIndex) {
