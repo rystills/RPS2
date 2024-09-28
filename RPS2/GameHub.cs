@@ -3,6 +3,13 @@ using System.Diagnostics;
 
 public class GameHub : Hub
 {
+    private readonly IHubContext<GameHub> _hubContext;
+
+    public GameHub(IHubContext<GameHub> hubContext)
+    {
+        _hubContext = hubContext;
+    }
+
     // players connected to the server
     private static HashSet<string> _connectedUsers = [];
 
@@ -105,10 +112,11 @@ public class GameHub : Hub
         _playerActions.Remove(room.team2Player2);
 
         // send moves to each client in their expected order
-        await Clients.Client(GetFullConnectionId(room.team1Player1)).SendAsync("ReceiveMoves", t1p1Move + t2p1Move + t1p2Move + t2p2Move);
-        await Clients.Client(GetFullConnectionId(room.team1Player2)).SendAsync("ReceiveMoves", t1p2Move + t2p2Move + t1p1Move + t2p1Move);
-        await Clients.Client(GetFullConnectionId(room.team2Player1)).SendAsync("ReceiveMoves", t2p1Move + t1p1Move + t2p2Move + t1p2Move);
-        await Clients.Client(GetFullConnectionId(room.team2Player2)).SendAsync("ReceiveMoves", t2p2Move + t1p2Move + t2p1Move + t1p1Move);
+        await _hubContext.Clients.Client(GetFullConnectionId(room.team1Player1)).SendAsync("ReceiveMoves", t1p1Move + t2p1Move + t1p2Move + t2p2Move);
+        await _hubContext.Clients.Client(GetFullConnectionId(room.team1Player2)).SendAsync("ReceiveMoves", t1p2Move + t2p2Move + t1p1Move + t2p1Move);
+        await _hubContext.Clients.Client(GetFullConnectionId(room.team2Player1)).SendAsync("ReceiveMoves", t2p1Move + t1p1Move + t2p2Move + t1p2Move);
+        await _hubContext.Clients.Client(GetFullConnectionId(room.team2Player2)).SendAsync("ReceiveMoves", t2p2Move + t1p2Move + t2p1Move + t1p1Move);
+
     }
 
     private async Task MatchTeams(string player1, string player2)
@@ -132,7 +140,7 @@ public class GameHub : Hub
             await Clients.Client(GetFullConnectionId(team2Player1)).SendAsync("JoinRoom", player1, player2, team2Player1, team2Player2);
             await Clients.Client(GetFullConnectionId(team2Player2)).SendAsync("JoinRoom", player1, player2, team2Player1, team2Player2);
 
-            await StartRoundTimer(room);
+            _ = StartRoundTimer(room);
         }
         else
         {
