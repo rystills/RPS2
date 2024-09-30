@@ -90,7 +90,7 @@
                             Friend
                         </span>
                         <div class="choose-item-invis">
-                            <div class="item">
+                            <div id="partnerChoiceDiv" class="item">
                                 <div id="partnerChoiceWait" class="spinner-border spinner-card" role="status" style="display:none">
                                 </div>
                                 <img id="partnerChoice" src="images/checkmark_icon.svg" style="" />
@@ -113,7 +113,7 @@
                         </span>
                         <div class="choose-item-invis">
 
-                            <div class="item">
+                            <div id="partnerEnemyChoiceDiv" class="item">
                                 <div id="partnerEnemyChoiceWait" class="spinner-border spinner-card" role="status" style="display:none">
                                 </div>
                                 <img id="partnerEnemyChoice" src="images/checkmark_icon.svg" style="" />
@@ -158,8 +158,7 @@
                 <div></div>
                 <div class="d-flex justify-content-center">
                     <div class="d-flex align-items-center flex-column">
-                        <div class="choose-item-invis">
-
+                        <div id="selfEnemyChoiceDiv" class="choose-item-invis">
                             <div class="item">
                                 <div id="selfEnemyChoiceWait" class="spinner-border spinner-card" role="status" style="display:none">
                                 </div>
@@ -172,6 +171,8 @@
                     </div>
                 </div>
             </div>
+            <svg id="selfLineSVG" width="500" height="500" style="position: absolute; pointer-events: none;"><line id="selfLine" x1="250" y1="500" x2="1000" y2="500" stroke="white" stroke-width="3" /></svg>
+            <svg id="partnerLineSVG" width="500" height="500" style="position: absolute; pointer-events: none;"><line id="partnerLine" x1="250" y1="500" x2="1000" y2="500" stroke="white" stroke-width="3" /></svg>
         </div>
     </section>
 
@@ -492,7 +493,54 @@
             case "game":
                 reset();
                 startNextRound();
+                positionLines();
                 break;
+        }
+    }
+
+    window.addEventListener('resize', fitLineSVGsToWindow);
+    function fitLineSVGsToWindow() {
+        // partner line
+        let partnerLineSVG = document.getElementById("partnerLineSVG");
+        partnerLineSVG.setAttribute("width", window.innerWidth);
+        partnerLineSVG.setAttribute("height", window.innerHeight);
+        
+        // self line
+        let selfLineSVG = document.getElementById("selfLineSVG");
+        selfLineSVG.setAttribute("width", window.innerWidth);
+        selfLineSVG.setAttribute("height", window.innerHeight);
+    };
+    fitLineSVGsToWindow();
+
+    function positionLines() {
+        // get divs
+        let partnerChoiceDiv      = document.getElementById("partnerChoiceDiv");
+        let partnerEnemyChoiceDiv = document.getElementById("partnerEnemyChoiceDiv");
+        let selfChoiceDiv         = document.getElementById("selfChoiceDiv");
+        let selfEnemyChoiceDiv    = document.getElementById("selfEnemyChoiceDiv");
+        let divs = [partnerChoiceDiv, partnerEnemyChoiceDiv, selfChoiceDiv, selfEnemyChoiceDiv]
+
+        // get lines
+        let partnerLine = document.getElementById("partnerLine");
+        let selfLine = document.getElementById("selfLine");
+        let lines = [partnerLine, selfLine];
+
+        for (let i = 0; i < lines.length; ++i) {
+            // get div rects (viewport-relative positions)
+            let rect1 = divs[i * 2].getBoundingClientRect();
+            let rect2 = divs[i * 2 + 1].getBoundingClientRect();
+            
+            // calc div centers
+            let div1CenterX = rect1.left + rect1.width / 2;
+            let div1CenterY = rect1.top + rect1.height / 2;
+            let div2CenterX = rect2.left + rect2.width / 2;
+            let div2CenterY = rect2.top + rect2.height / 2;
+            
+            // connect line ends to div centers
+            lines[i].setAttribute("x1", div1CenterX);
+            lines[i].setAttribute("y1", div1CenterY);
+            lines[i].setAttribute("x2", div2CenterX);
+            lines[i].setAttribute("y2", div2CenterY);
         }
     }
 
