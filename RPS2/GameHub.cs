@@ -11,7 +11,7 @@ public class GameHub : Hub
     }
 
     // players connected to the server
-    private static HashSet<string> _connectedUsers = [];
+    private static Dictionary<string, string> _connectedUsers = [];
 
     // players connected to matchmaking
     private static Dictionary<string, string> _waitingPlayers = [];
@@ -32,22 +32,23 @@ public class GameHub : Hub
 
     public override async Task OnConnectedAsync()
     {
-        _connectedUsers.Add(Context.ConnectionId);
+        _connectedUsers[Context.ConnectionId] = "";
         await base.OnConnectedAsync();
     }
 
     public override async Task OnDisconnectedAsync(Exception exception)
     {
         _connectedUsers.Remove(Context.ConnectionId);
+        // TODO: remove from any matchmaking queues
         await base.OnDisconnectedAsync(exception);
     }
 
-    private string GetFullConnectionId(string partialConnectionId) => _connectedUsers.First(u => u.StartsWith(partialConnectionId));
+    private string GetFullConnectionId(string partialConnectionId) => _connectedUsers.First(u => u.Key.StartsWith(partialConnectionId)).Key;
 
-    public async Task StartMatchmaking(string friendConnectionId)
+    public async Task StartMatchmaking(string friendConnectionId, string name)
     {
+        _connectedUsers[Context.ConnectionId] = name;
         string userConnectionId = Context.ConnectionId.Substring(0, 8);
-
 
         if (friendConnectionId.Length == 0)
         {
@@ -81,7 +82,6 @@ public class GameHub : Hub
 
     public void SubmitMove(string action)
     {
-        Debug.WriteLine(Context.ConnectionId + " " + action);
         _playerActions[Context.ConnectionId.Substring(0, 8)] = action;
     }
     
@@ -145,10 +145,17 @@ public class GameHub : Hub
             _rooms.Add(room);
 
             // notify players that they have joined the room
-            await Clients.Client(GetFullConnectionId(player1)).SendAsync("JoinRoom", player1, player2, team2Player1, team2Player2);
-            await Clients.Client(GetFullConnectionId(player2)).SendAsync("JoinRoom", player1, player2, team2Player1, team2Player2);
-            await Clients.Client(GetFullConnectionId(team2Player1)).SendAsync("JoinRoom", player1, player2, team2Player1, team2Player2);
-            await Clients.Client(GetFullConnectionId(team2Player2)).SendAsync("JoinRoom", player1, player2, team2Player1, team2Player2);
+            await Clients.Client(GetFullConnectionId(player1)).SendAsync("JoinRoom",
+                _connectedUsers[GetFullConnectionId(player2)], _connectedUsers[GetFullConnectionId(team2Player1)], _connectedUsers[GetFullConnectionId(team2Player2)]);
+
+            await Clients.Client(GetFullConnectionId(player2)).SendAsync("JoinRoom",
+                _connectedUsers[GetFullConnectionId(player1)], _connectedUsers[GetFullConnectionId(team2Player2)], _connectedUsers[GetFullConnectionId(team2Player1)]);
+
+            await Clients.Client(GetFullConnectionId(team2Player1)).SendAsync("JoinRoom",
+                _connectedUsers[GetFullConnectionId(team2Player2)], _connectedUsers[GetFullConnectionId(player1)], _connectedUsers[GetFullConnectionId(player2)]);
+
+            await Clients.Client(GetFullConnectionId(team2Player2)).SendAsync("JoinRoom",
+                _connectedUsers[GetFullConnectionId(team2Player1)], _connectedUsers[GetFullConnectionId(player2)], _connectedUsers[GetFullConnectionId(player1)]);
 
             _ = StartRoundTimer(room);
         }
