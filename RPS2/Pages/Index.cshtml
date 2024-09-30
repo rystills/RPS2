@@ -194,6 +194,7 @@
     let teamWins = 0;
     let enemyWins = 0;
     let starsToWin = 2;
+    let playerMap = {}
 
     friendIdInput.addEventListener('input', function () {
         // restrict friend code input to alphanum
@@ -230,6 +231,9 @@
         }
         else {
             document.getElementById('selfChoice').src = "images/skull_icon.svg"
+            // TODO: might need to make death calculations serverside logic to avoid cheating
+            connection.invoke("SubmitMove", "die")
+                .catch(err => console.error("Error submitting action: " + err));
         }
 
         if (playersAlive[2]) {
@@ -325,6 +329,15 @@
         // Update countdown text
         document.getElementById('countdown').textContent = 'Results';
         document.getElementById('countdown').style.color = "white";
+
+        document.getElementById("partnerChoiceWait").style.setProperty('display', 'none', 'important');
+        document.getElementById("partnerChoice").style.setProperty('display', 'flex', 'important');
+
+        document.getElementById("partnerEnemyChoiceWait").style.setProperty('display', 'none', 'important');
+        document.getElementById("partnerEnemyChoice").style.setProperty('display', 'flex', 'important');
+
+        document.getElementById("selfEnemyChoiceWait").style.setProperty('display', 'none', 'important');
+        document.getElementById("selfEnemyChoice").style.setProperty('display', 'flex', 'important');
 
         // reveal player choices
         if (playersAlive[2])
@@ -618,16 +631,30 @@
         startNextRound();
     });
 
-    connection.on("PlayerMoved", function (playerIndex) {
+    connection.on("PlayerMoved", function (playerCode) {
+
+
+        playerIndex = playerMap[playerCode];
+        console.log(playerCode);
+        console.log(playerIndex);
         // reveal player choices
-        if (playerIndex == 2)
+        if (playerIndex == 2) {
+            document.getElementById("partnerChoiceWait").style.setProperty('display', 'none', 'important');
+            document.getElementById("partnerChoice").style.setProperty('display', 'flex', 'important');
             document.getElementById('partnerChoice').src = "images/checkmark_icon.svg"
+        }
 
-        if (playerIndex == 3)
+        if (playerIndex == 3) {
+            document.getElementById("partnerEnemyChoiceWait").style.setProperty('display', 'none', 'important');
+            document.getElementById("partnerEnemyChoice").style.setProperty('display', 'flex', 'important');
             document.getElementById('partnerEnemyChoice').src = "images/checkmark_icon.svg"
+        }
 
-        if (playerIndex == 1)
+        if (playerIndex == 1){
+            document.getElementById("selfEnemyChoiceWait").style.setProperty('display', 'none', 'important');
+            document.getElementById("selfEnemyChoice").style.setProperty('display', 'flex', 'important');
             document.getElementById('selfEnemyChoice').src = "images/checkmark_icon.svg"
+        }
     });
 
     // listen for moves
@@ -635,11 +662,15 @@
         console.log(playerMoves);
     });
 
-    connection.on("JoinRoom", function (partnerName, selfEnemyName, partnerEnemyName) {
+    connection.on("JoinRoom", function (partnerName, selfEnemyName, partnerEnemyName, selfCode, partnerCode, selfEnemyCode, partnerEnemyCode) {
         // display room info
         document.getElementById("selfEnemyName").innerText = selfEnemyName;
         document.getElementById("partnerName").innerText = partnerName;
         document.getElementById("partnerEnemyName").innerText = partnerEnemyName;
+        playerMap[selfCode] = 0;
+        playerMap[partnerCode] = 2;
+        playerMap[selfEnemyCode] = 1;
+        playerMap[partnerEnemyCode] = 3;
         SetActiveScreen("game");
     });
 </script>
