@@ -86,7 +86,7 @@
             <div class="top-row">
                 <div class="d-flex justify-content-center">
                     <div class="d-flex align-items-center flex-column">
-                        <span class="player-name-top">
+                        <span id="partnerName" class="player-name-top">
                             Friend
                         </span>
                         <div class="choose-item-invis">
@@ -108,7 +108,7 @@
                 </div>
                 <div class="d-flex justify-content-center">
                     <div class="d-flex align-items-center flex-column">
-                        <span class="player-name-top">
+                        <span id="selfEnemyName" class="player-name-top">
                             Enemy1
                         </span>
                         <div class="choose-item-invis">
@@ -166,7 +166,7 @@
                                 <img id="selfEnemyChoice" src="images/checkmark_icon.svg" />
                             </div>
                         </div>
-                        <span class="player-name-bottom">
+                        <span id="partnerEnemyName" class="player-name-bottom">
                             Enemy2
                         </span>
                     </div>
@@ -589,8 +589,9 @@
 
     connection.on("JoinRoom", function (partnerName, selfEnemyName, partnerEnemyName) {
         // display room info
-        // TODO: assign names to UI here
-        console.log("partner name: " + partnerName + ", self enemy name: " + selfEnemyName + ", partner enemy name: " + partnerEnemyName);
+        document.getElementById("selfEnemyName").innerText = selfEnemyName;
+        document.getElementById("partnerName").innerText = partnerName;
+        document.getElementById("partnerEnemyName").innerText = partnerEnemyName;
         SetActiveScreen("game");
     });
 </script>
