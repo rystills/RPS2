@@ -621,8 +621,12 @@
 
     // listen for moves
     connection.on("ReceiveMoves", function (playerMoves) {
-        for (let i = 0; i < playerMoves.length; ++i)
+        for (let i = 0; i < playerMoves.length; ++i) {
             playerChoices[i] = playerMoves[i];
+            if(!moveOptions[playerChoices[i]]){
+                console.log(i + " " + playerChoices[i]);
+            }
+        }
         revealChoices();
     });
 

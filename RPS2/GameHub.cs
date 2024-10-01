@@ -105,9 +105,16 @@ public class GameHub : Hub
                         }
                         movesReceived.Add(roomPlayer);
                     }
+
+                    else
+                    {
+                        // Don't send die back to client
+                        movesReceived.Add(roomPlayer);
+                        _playerActions.Remove(roomPlayer);
+                    }
                 }
             }
-            if (roomPlayers.All(_playerActions.ContainsKey))
+            if (movesReceived.Count == roomPlayers.Length)
             {
                 break;
             }
