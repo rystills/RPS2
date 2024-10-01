@@ -534,26 +534,17 @@
     fitLineSVGsToWindow();
 
     function clearLineColors() {
+        // get lines
         let partnerLine = document.getElementById("partnerLine");
         let selfLine = document.getElementById("selfLine");
         let lines = [partnerLine, selfLine];
+
         for (let i = 0; i < lines.length; ++i) {
             lines[i].setAttribute("stroke", "white");
         }
     }
 
     function recolorLines() {
-        // TODO: abstract duplicate logic from positionLines
-        // get divs
-        let partnerChoiceDiv      = document.getElementById("partnerChoiceDiv");
-        let partnerEnemyChoiceDiv = document.getElementById("partnerEnemyChoiceDiv");
-        let selfChoiceDiv         = document.getElementById("chooseItem");
-
-        if (selfChoiceDiv.style.display === 'none')
-            selfChoiceDiv = document.getElementById("selfChoiceItemDiv");
-
-        let selfEnemyChoiceDiv = document.getElementById("selfEnemyChoiceDiv").querySelector(".item");
-
         // get lines
         let partnerLine = document.getElementById("partnerLine");
         let selfLine = document.getElementById("selfLine");
