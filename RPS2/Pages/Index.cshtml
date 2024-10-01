@@ -204,9 +204,13 @@
         this.value = this.value.replace(/[^a-zA-Z0-9-_]/g, '');
 
         // tether 'find game' button state to friend code input validity
-        document.getElementById("findGameBtn").disabled = this.value.length > 0 && this.value.length < 8;
+        if (this.value.length == 0 || this.value.length == 8) {
+            document.getElementById("findGameBtn").style = "";
+        }
+        else {
+            document.getElementById("findGameBtn").style = "pointer-events: none; color: gray;";
+        }
     });
-
 
     // create the SignalR connection
     const connection = new signalR.HubConnectionBuilder()
