@@ -1,6 +1,26 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using System.Diagnostics;
 
+public class Room
+{
+    public string team1Player1 { get; set; }
+    public string team1Player2 { get; set; }
+    public string team2Player1 { get; set; }
+    public string team2Player2 { get; set; }
+    public bool[] playersAlive { get; set; }
+    public Dictionary<string, string> playerMoves { get; set; }
+
+    public Room(string team1Player1, string team1Player2, string team2Player1, string team2Player2, bool[] playersAlive, Dictionary<string, string> playerMoves)
+    {
+        this.team1Player1 = team1Player1;
+        this.team1Player2 = team1Player2;
+        this.team2Player1 = team2Player1;
+        this.team2Player2 = team2Player2;
+        this.playersAlive = playersAlive;
+        this.playerMoves = playerMoves;
+    }
+}
+
 public class GameHub : Hub
 {
     private readonly IHubContext<GameHub> _hubContext;
@@ -26,6 +46,8 @@ public class GameHub : Hub
     private static Dictionary<string, string> _playerActions = [];
 
     private static int _roundTime = 10000;
+
+    private static Dictionary<string, Room> roomMap = [];
 
     public override async Task OnConnectedAsync()
     {
@@ -81,16 +103,112 @@ public class GameHub : Hub
     {
         _playerActions[Context.ConnectionId.Substring(0, 8)] = action;
     }
+
+    // res: -1 = loss, 0 = tie, 1 = win
+    private int GetRPSResult(int a, int b)
+    {
+        // rock
+        if (a == 0)
+        {
+            return b == 0 ? 0 : (b == 1 ? -1 : 1);
+        }
+        // paper
+        if (a == 1)
+        {
+            return b == 0 ? 1 : (b == 1 ? 0 : -1);
+        }
+        // scissors
+        return b == 0 ? -1 : (b == 1 ? 1 : 0);
+    }
+
+    private void setPlayersAlive(bool[] playersAlive, int[] playerChoices)
+    {
+        // evaluate round 
+        // all players alive
+        if (playersAlive[0] && playersAlive[1] && playersAlive[2] && playersAlive[3])
+        {
+            int selfRes = GetRPSResult(playerChoices[0], playerChoices[1]);
+            int selfEnemyRes = -selfRes;
+            int partnerRes = GetRPSResult(playerChoices[2], playerChoices[3]);
+            int partnerEnemyRes = -partnerRes;
+            playersAlive[0] = selfRes >= 0;
+            playersAlive[1] = selfEnemyRes >= 0;
+            playersAlive[2] = partnerRes >= 0;
+            playersAlive[3] = partnerEnemyRes >= 0;
+        }
+        // you dead
+        else if (!playersAlive[0] && playersAlive[1] && playersAlive[2] && playersAlive[3])
+        {
+            int partnerRes1 = GetRPSResult(playerChoices[2], playerChoices[1]);
+            int selfEnemyRes = -partnerRes1;
+            int partnerRes2 = GetRPSResult(playerChoices[2], playerChoices[3]);
+            int partnerEnemyRes = -partnerRes2;
+            playersAlive[1] = selfEnemyRes >= 0;
+            playersAlive[2] = partnerRes2 >= 0;
+            playersAlive[3] = partnerEnemyRes >= 0;
+        }
+        // partner dead
+        else if (playersAlive[0] && playersAlive[1] && !playersAlive[2] && playersAlive[3])
+        {
+            int selfRes1 = GetRPSResult(playerChoices[0], playerChoices[1]);
+            int selfEnemyRes = -selfRes1;
+            int selfRes2 = GetRPSResult(playerChoices[0], playerChoices[3]);
+            int partnerEnemyRes = -selfRes2;
+            playersAlive[0] = selfRes1 >= 0 && selfRes2 >= 0;
+            playersAlive[1] = selfEnemyRes >= 0;
+            playersAlive[3] = partnerEnemyRes >= 0;
+        }
+        // your enemy dead
+        else if (playersAlive[0] && !playersAlive[1] && playersAlive[2] && playersAlive[3])
+        {
+            int selfRes = GetRPSResult(playerChoices[0], playerChoices[3]);
+            int partnerEnemyRes1 = -selfRes;
+            int partnerRes = GetRPSResult(playerChoices[2], playerChoices[3]);
+            int partnerEnemyRes2 = -partnerRes;
+            playersAlive[0] = selfRes >= 0;
+            playersAlive[2] = partnerRes >= 0;
+            playersAlive[3] = partnerEnemyRes1 >= 0 && partnerEnemyRes2 >= 0;
+        }
+        // partner enemy dead
+        else if (playersAlive[0] && playersAlive[1] && playersAlive[2] && !playersAlive[3])
+        {
+            int selfRes = GetRPSResult(playerChoices[0], playerChoices[1]);
+            int selfEnemyRes1 = -selfRes;
+            int partnerRes = GetRPSResult(playerChoices[2], playerChoices[1]);
+            int selfEnemyRes2 = -partnerRes;
+            playersAlive[0] = selfRes >= 0;
+            playersAlive[1] = selfEnemyRes1 >= 0 && selfEnemyRes2 >= 0;
+            playersAlive[2] = partnerRes >= 0;
+        }
+
+        // two dead
+        else
+        {
+            // there shouldn't be a case where two on the same team are alive as the round would be reset
+            int teamAlive = playersAlive[0] ? 0 : 2;
+            int enemyAlive = playersAlive[1] ? 1 : 3;
+            int teamRes = GetRPSResult(playerChoices[teamAlive], playerChoices[enemyAlive]);
+            int enemyRes = -teamRes;
+            playersAlive[teamAlive] = teamRes >= 0;
+            playersAlive[enemyAlive] = enemyRes >= 0;
+        }
+    }
     
-    public async Task StartRoundTimer(string team1Player1, string team1Player2, string team2Player1, string team2Player2)
+    public async Task StartRoundTimer(Room room)
     {
         // wait for round timer to expire, or for all players to submit their move
+        string team1Player1 = room.team1Player1;
+        string team1Player2 = room.team1Player2;
+        string team2Player1 = room.team2Player1;
+        string team2Player2 = room.team2Player2;
+
+        // TODO: leftoff, continue refactoring this
+        
         int divisions = 20;
         HashSet<string> movesReceived = [];
         for (int div = 0; div < divisions; div++)
         {
             string[] roomPlayers = { team1Player1, team2Player1, team1Player2, team2Player2 };
-            // TODO: don't require an action for dead players
             for(int i = 0; i < roomPlayers.Length; i++) 
             {
                 string roomPlayer = roomPlayers[i];
@@ -182,6 +300,9 @@ public class GameHub : Hub
                 team2Player2, team2Player1, player2, player1
                 );
 
+            bool[] roomAlive = { true, true, true, true };
+            Dictionary<string, string> roomMoves = [];
+            Room room = new Room(player1, player2, team2Player1, team2Player2, roomAlive, roomMoves);
             _ = StartRoundTimer(player1, player2, team2Player1, team2Player2);
         }
         else
