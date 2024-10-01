@@ -647,6 +647,11 @@
         startNextRound();
     });
 
+    connection.on("UpdateMatchmakingProgress", function (numPlayersInRoom) {
+        curText = document.getElementById("waitingQuip").innerText;
+        document.getElementById("waitingQuip").innerText = curText.substr(0, curText.length - 7) + "(" + numPlayersInRoom + " / 4)";
+    });
+
     connection.on("PlayerMoved", function (playerCode) {
 
 

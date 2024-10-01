@@ -188,6 +188,8 @@ public class GameHub : Hub
         {
             // add pair to waiting list
             _waitingPairLeaders[player1] = player2;
+            await Clients.Client(GetFullConnectionId(player1)).SendAsync("UpdateMatchmakingProgress", 2);
+            await Clients.Client(GetFullConnectionId(player2)).SendAsync("UpdateMatchmakingProgress", 2);
         }
     }
 }
