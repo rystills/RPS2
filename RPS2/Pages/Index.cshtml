@@ -188,6 +188,7 @@
     // player order: self, selfEnemy, partner, partnerEnemy
     let playerChoices = [0, 0, 0, 0];
     let playersAlive = [true, true, true, true];
+    let lineDivs = [];
     let roundSecondsRemaining = 0;
     let resultsSecondsRemaining = 0;
     let aiMode = false;
@@ -261,6 +262,7 @@
         }
 
         positionLines();
+        clearLineColors();
 
         // countdown
         roundSecondsRemaining = 10;
@@ -423,6 +425,7 @@
             playersAlive[teamAlive] = teamRes >= 0;
             playersAlive[enemyAlive] = enemyRes >= 0;
         }
+        recolorLines();
 
         if (!playersAlive[1] && !playersAlive[3]) {
             winRound();
@@ -528,6 +531,39 @@
     };
     fitLineSVGsToWindow();
 
+    function clearLineColors() {
+        let partnerLine = document.getElementById("partnerLine");
+        let selfLine = document.getElementById("selfLine");
+        let lines = [partnerLine, selfLine];
+        for (let i = 0; i < lines.length; ++i) {
+            lines[i].setAttribute("stroke", "white");
+        }
+    }
+
+    function recolorLines() {
+        // TODO: abstract duplicate logic from positionLines
+        // get divs
+        let partnerChoiceDiv      = document.getElementById("partnerChoiceDiv");
+        let partnerEnemyChoiceDiv = document.getElementById("partnerEnemyChoiceDiv");
+        let selfChoiceDiv         = document.getElementById("chooseItem");
+
+        if (selfChoiceDiv.style.display === 'none')
+            selfChoiceDiv = document.getElementById("selfChoiceItemDiv");
+
+        let selfEnemyChoiceDiv = document.getElementById("selfEnemyChoiceDiv").querySelector(".item");
+
+        // get lines
+        let partnerLine = document.getElementById("partnerLine");
+        let selfLine = document.getElementById("selfLine");
+        let lines = [partnerLine, selfLine];
+
+        for (let i = 0; i < lines.length; ++i) {
+            let alive1 = lineDivs[i * 2] == selfChoiceDiv ? playersAlive[0] : playersAlive[2];
+            let alive2 = lineDivs[i * 2 + 1] == selfEnemyChoiceDiv ? playersAlive[1] : playersAlive[3];
+            lines[i].setAttribute("stroke", alive1 && alive2 ? "white" : alive1 ? "green" : "red");
+        }
+    }
+
     function positionLines() {
         // get divs
         let partnerChoiceDiv      = document.getElementById("partnerChoiceDiv");
@@ -538,7 +574,7 @@
             selfChoiceDiv = document.getElementById("selfChoiceItemDiv");
 
         let selfEnemyChoiceDiv = document.getElementById("selfEnemyChoiceDiv").querySelector(".item");
-        let divs = [playersAlive[2] ? partnerChoiceDiv : selfChoiceDiv,
+        lineDivs = [playersAlive[2] ? partnerChoiceDiv : selfChoiceDiv,
                     playersAlive[3] ? partnerEnemyChoiceDiv : selfEnemyChoiceDiv,
                     playersAlive[0] ? selfChoiceDiv : partnerChoiceDiv,
                     playersAlive[1] ? selfEnemyChoiceDiv : partnerEnemyChoiceDiv];
@@ -550,8 +586,8 @@
 
         for (let i = 0; i < lines.length; ++i) {
             // get div rects (viewport-relative positions)
-            let rect1 = divs[i * 2].getBoundingClientRect();
-            let rect2 = divs[i * 2 + 1].getBoundingClientRect();
+            let rect1 = lineDivs[i * 2].getBoundingClientRect();
+            let rect2 = lineDivs[i * 2 + 1].getBoundingClientRect();
             
             // calc div centers
             // TODO: why off by 24?
