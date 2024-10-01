@@ -146,7 +146,7 @@
                             <img id="scissorsChoice" src="images/scissors.svg" />
                         </div>
                         <div id="selfChoiceDiv" class="choose-item-invis" style="display:none !important">
-                            <div class="item">
+                            <div id="selfChoiceItemDiv" class="item">
                                 <img id="selfChoice" src="images/rock.svg" />
                             </div>
                         </div>
@@ -260,6 +260,7 @@
             document.getElementById('selfEnemyChoice').src = "images/skull_icon.svg"
         }
 
+        positionLines();
 
         // countdown
         roundSecondsRemaining = 10;
@@ -356,6 +357,8 @@
 
         // hide choice selection
         document.getElementById('chooseItem').style.setProperty('display', 'none', 'important');
+
+        positionLines();
 
         // evaluate round
         // all players alive
@@ -529,8 +532,12 @@
         // get divs
         let partnerChoiceDiv      = document.getElementById("partnerChoiceDiv");
         let partnerEnemyChoiceDiv = document.getElementById("partnerEnemyChoiceDiv");
-        let selfChoiceDiv         = document.getElementById("selfChoiceDiv");
-        let selfEnemyChoiceDiv    = document.getElementById("selfEnemyChoiceDiv");
+        let selfChoiceDiv         = document.getElementById("chooseItem");
+
+        if (selfChoiceDiv.style.display === 'none')
+            selfChoiceDiv = document.getElementById("selfChoiceItemDiv");
+
+        let selfEnemyChoiceDiv = document.getElementById("selfEnemyChoiceDiv").querySelector(".item");
         let divs = [partnerChoiceDiv, partnerEnemyChoiceDiv, selfChoiceDiv, selfEnemyChoiceDiv]
 
         // get lines
@@ -544,15 +551,16 @@
             let rect2 = divs[i * 2 + 1].getBoundingClientRect();
             
             // calc div centers
-            let div1CenterX = rect1.left + rect1.width / 2;
+            // TODO: why off by 24?
+            let div1CenterX = rect1.right - 24;
             let div1CenterY = rect1.top + rect1.height / 2;
-            let div2CenterX = rect2.left + rect2.width / 2;
+            let div2CenterX = rect2.left - 24;
             let div2CenterY = rect2.top + rect2.height / 2;
             
             // connect line ends to div centers
-            lines[i].setAttribute("x1", div1CenterX);
+            lines[i].setAttribute("x1", div1CenterX + 20);
             lines[i].setAttribute("y1", div1CenterY);
-            lines[i].setAttribute("x2", div2CenterX);
+            lines[i].setAttribute("x2", div2CenterX - 20);
             lines[i].setAttribute("y2", div2CenterY);
         }
     }
@@ -577,6 +585,7 @@
             else {
                 connection.invoke("SubmitMove", "" + moveInd)
                     .catch(err => console.error("Error submitting action: " + err));
+                positionLines();
             }
         }
     }
