@@ -7,10 +7,10 @@ public class Room
     public string team1Player2 { get; set; }
     public string team2Player1 { get; set; }
     public string team2Player2 { get; set; }
-    public bool[] playersAlive { get; set; }
+    public Dictionary<string, bool> playersAlive { get; set; }
     public Dictionary<string, string> playerMoves { get; set; }
 
-    public Room(string team1Player1, string team1Player2, string team2Player1, string team2Player2, bool[] playersAlive, Dictionary<string, string> playerMoves)
+    public Room(string team1Player1, string team1Player2, string team2Player1, string team2Player2, Dictionary<string, bool> playersAlive, Dictionary<string, string> playerMoves)
     {
         this.team1Player1 = team1Player1;
         this.team1Player2 = team1Player2;
@@ -193,7 +193,7 @@ public class GameHub : Hub
             playersAlive[enemyAlive] = enemyRes >= 0;
         }
     }
-    
+
     public async Task StartRoundTimer(Room room)
     {
         // wait for round timer to expire, or for all players to submit their move
@@ -201,15 +201,16 @@ public class GameHub : Hub
         string team1Player2 = room.team1Player2;
         string team2Player1 = room.team2Player1;
         string team2Player2 = room.team2Player2;
+        string[] roomPlayers = { team1Player1, team2Player1, team1Player2, team2Player2 };
+
 
         // TODO: leftoff, continue refactoring this
-        
+
         int divisions = 20;
         HashSet<string> movesReceived = [];
         for (int div = 0; div < divisions; div++)
         {
-            string[] roomPlayers = { team1Player1, team2Player1, team1Player2, team2Player2 };
-            for(int i = 0; i < roomPlayers.Length; i++) 
+            for (int i = 0; i < roomPlayers.Length; i++)
             {
                 string roomPlayer = roomPlayers[i];
                 if (_playerActions.ContainsKey(roomPlayer) && !movesReceived.Contains(roomPlayer))
@@ -239,12 +240,33 @@ public class GameHub : Hub
             await Task.Delay(_roundTime / divisions);
         }
 
-        // moves default to rock
-        string t1p1Move = _playerActions.ContainsKey(team1Player1) ? _playerActions[team1Player1] : "0";
-        string t1p2Move = _playerActions.ContainsKey(team1Player2) ? _playerActions[team1Player2] : "0";
-        string t2p1Move = _playerActions.ContainsKey(team2Player1) ? _playerActions[team2Player1] : "0";
-        string t2p2Move = _playerActions.ContainsKey(team2Player2) ? _playerActions[team2Player2] : "0";
-        
+
+        // The things we do to not have to rewrite the RPS logic when tired...
+        int[] playerChoices = new int[4];
+        bool[] playersAlive = new bool[4];
+        for(int i = 0; i < roomPlayers.Length; ++i)
+        {
+            string player = roomPlayers[i];
+            if (!_playerActions.ContainsKey(player))
+            {
+                _playerActions[player] = "0"; // Default to rock
+            }
+            playerChoices[i] = Int32.Parse(_playerActions[player]);
+            playersAlive[i] = room.playersAlive[player];
+        }
+
+        setPlayersAlive(playersAlive, playerChoices);
+        for (int i = 0; i < roomPlayers.Length; ++i)
+        {
+            string player = roomPlayers[i];
+            room.playersAlive[player] = playersAlive[i];
+        }
+
+        string t1p1Move = _playerActions[team1Player1];
+        string t1p2Move = _playerActions[team1Player2];
+        string t2p1Move = _playerActions[team2Player1];
+        string t2p2Move = _playerActions[team2Player2];
+
         // clear moves after processing
         _playerActions.Remove(team1Player1);
         _playerActions.Remove(team1Player2);
@@ -265,7 +287,7 @@ public class GameHub : Hub
         await _hubContext.Clients.Client(GetFullConnectionId(team2Player1)).SendAsync("StartRound");
         await _hubContext.Clients.Client(GetFullConnectionId(team2Player2)).SendAsync("StartRound");
         
-        _ = StartRoundTimer(team1Player1, team1Player2, team2Player1, team2Player2);
+        _ = StartRoundTimer(room);
     }
 
     private async Task MatchTeams(string player1, string player2)
@@ -301,9 +323,15 @@ public class GameHub : Hub
                 );
 
             bool[] roomAlive = { true, true, true, true };
+            Dictionary<string, bool> playersAlive = [];
             Dictionary<string, string> roomMoves = [];
-            Room room = new Room(player1, player2, team2Player1, team2Player2, roomAlive, roomMoves);
-            _ = StartRoundTimer(player1, player2, team2Player1, team2Player2);
+            string[] roomPlayers = { player1, team2Player1, player2, team2Player2 };
+            foreach (string roomPlayer in roomPlayers)
+            {
+                playersAlive[roomPlayer] = true;
+            }
+            Room room = new Room(player1, player2, team2Player1, team2Player2, playersAlive, roomMoves);
+            _ = StartRoundTimer(room);
         }
         else
         {
