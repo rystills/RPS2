@@ -67,16 +67,19 @@
             <img src="images/Logo.svg" class="logo" />
         </section>
         <section style="text-align: center; padding:1px">
-            <label id="resultsText" class="results-text"> You win! </label>
+            <img id="resultsImage" src="images/win.svg" class="results-image mt-5" />
         </section>
         <section style="text-align: center; padding:1px">
-            <a id="playAgainBtn" class="btn btn-primary mt-5">Play again</a>
+            <a id="playAgainBtn" class="btn btn-primary mt-3 mb-5 play-again-btn">Play again?</a>
         </section>
         <section style="text-align: center; padding:1px">
-            <a href="https://store.steampowered.com/app/3107360/Grooveyard/" rel="noopener noreferrer" target="_blank" class="btn btn-primary mt-1">Check out Grooveyard on Steam</a>
+            <label class="note" style="text-align:center !important">Enjoyed Rock Paper Scissors 2v2? Make sure to check out these other fun games!</label>
         </section>
         <section style="text-align: center; padding:1px">
-            <a href="https://store.steampowered.com/app/2217000/Rivals_of_Aether_II/" rel="noopener noreferrer" target="_blank" class="btn btn-primary mt-1">Check out Rivals of Aether II on Steam</a>
+            <div class="d-flex justify-content-center">
+                <a href="https://store.steampowered.com/app/3107360/Grooveyard/" rel="noopener noreferrer" target="_blank" class="btn btn-primary mt-1 wishlist-btn me-3">Wishlist Grooveyard on Steam</a>
+                <a href="https://store.steampowered.com/app/2441100/Unrooted/" rel="noopener noreferrer" target="_blank" class="btn btn-primary mt-1 wishlist-btn ms-3">Check out Unrooted on Steam</a>
+            </div>
         </section>
     </section>
 
@@ -198,6 +201,8 @@
     let enemyWins = 0;
     let starsToWin = 2;
     let playerMap = {}
+    let moveChosen = false;
+    let ticking = false;
 
     friendIdInput.addEventListener('input', function () {
         // restrict friend code input to alphanum
@@ -235,6 +240,7 @@
         if (playersAlive[0]) {
             document.getElementById('chooseItem').style.setProperty('display', 'flex', 'important');
             document.getElementById('selfChoiceDiv').style.setProperty('display', 'none', 'important');
+            moveChosen = false;
         }
         else {
             document.getElementById('selfChoice').src = "images/skull_icon.svg"
@@ -446,12 +452,12 @@
             if (--resultsSecondsRemaining == 0) {
                 if (teamWins >= starsToWin) {
                     reset();
-                    document.getElementById('resultsText').innerText = "You win!"
+                    document.getElementById('resultsImage').src = "images/win.svg"
                     SetActiveScreen("results");
                 }
                 else if (enemyWins >= starsToWin) {
                     reset();
-                    document.getElementById('resultsText').innerText = "You lose!"
+                    document.getElementById('resultsImage').src = "images/lose.svg"
                     SetActiveScreen("results");
                 }
                 else {
@@ -474,6 +480,7 @@
         enemyWins = 0;
         teamWins = 0;
         playersAlive = [true, true, true, true];
+        moveChosen = false;
     }
 
     function winRound() {
@@ -522,20 +529,29 @@
                 break;
         }
     }
+    document.getElementById("scrollContainer").addEventListener("scroll", (event) => {
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                fitLineSVGsToWindow();
+                ticking = false;
+            });
 
+            ticking = true;
+        }
+    });
     window.addEventListener('resize', fitLineSVGsToWindow);
     function fitLineSVGsToWindow() {
         // partner line
         let partnerLineSVG = document.getElementById("partnerLineSVG");
-        partnerLineSVG.setAttribute("width", window.innerWidth);
-        partnerLineSVG.setAttribute("height", window.innerHeight);
+        partnerLineSVG.setAttribute("width", window.innerWidth * 0.95);
+        partnerLineSVG.setAttribute("height", window.innerHeight * 0.95);
         
         // self line
         let selfLineSVG = document.getElementById("selfLineSVG");
-        selfLineSVG.setAttribute("width", window.innerWidth);
-        selfLineSVG.setAttribute("height", window.innerHeight);
+        selfLineSVG.setAttribute("width", window.innerWidth * 0.95);
+        selfLineSVG.setAttribute("height", window.innerHeight * 0.95);
         
-        positionLines();
+        positionLines(false);
     };
     fitLineSVGsToWindow();
 
@@ -562,7 +578,7 @@
         }
     }
 
-    function positionLines() {
+    function positionLines(calculateDivs=true) {
         // get divs
         let partnerChoiceDiv      = document.getElementById("partnerChoiceDiv");
         let partnerEnemyChoiceDiv = document.getElementById("partnerEnemyChoiceDiv");
@@ -572,10 +588,12 @@
             selfChoiceDiv = document.getElementById("selfChoiceItemDiv");
 
         let selfEnemyChoiceDiv = document.getElementById("selfEnemyChoiceDiv").querySelector(".item");
-        lineDivs = [playersAlive[2] ? partnerChoiceDiv : selfChoiceDiv,
-                    playersAlive[3] ? partnerEnemyChoiceDiv : selfEnemyChoiceDiv,
-                    playersAlive[0] ? selfChoiceDiv : partnerChoiceDiv,
-                    playersAlive[1] ? selfEnemyChoiceDiv : partnerEnemyChoiceDiv];
+        if(lineDivs.length === 0 || calculateDivs){
+            lineDivs = [playersAlive[2] ? partnerChoiceDiv : selfChoiceDiv,
+                        playersAlive[3] ? partnerEnemyChoiceDiv : selfEnemyChoiceDiv,
+                        playersAlive[0] ? selfChoiceDiv : partnerChoiceDiv,
+                        playersAlive[1] ? selfEnemyChoiceDiv : partnerEnemyChoiceDiv];
+        }
 
         // get lines
         let partnerLine = document.getElementById("partnerLine");
@@ -608,7 +626,7 @@
     }
 
     function makeChoice(moveInd) {
-        if (countdownInterval) {
+        if (countdownInterval && !moveChosen) {
             playerChoices[0] = moveInd;
             if (playersAlive[0]) {
                 document.getElementById('chooseItem').style.setProperty('display', 'none', 'important');
@@ -624,6 +642,7 @@
                     .catch(err => console.error("Error submitting action: " + err));
                 positionLines();
             }
+            moveChosen = true;
         }
     }
 
@@ -663,6 +682,19 @@
         SetActiveScreen("searching");
         connection.invoke("StartMatchmaking", document.getElementById("friendIdInput").value, document.getElementById("nameInput").value)
             .catch(err => console.error("Error starting matchmaking: " + err));
+    });
+
+    // listen for rps keyboard input
+    document.addEventListener('keydown', function (event) {
+        if (event.code == 'KeyR') {
+            makeChoice(0);
+        }
+        else if (event.code == 'KeyP') {
+            makeChoice(1);
+        }
+        else if (event.code == 'KeyS') {
+            makeChoice(2);
+        }
     });
 
     // listen for moves
@@ -728,4 +760,5 @@
         playerMap[partnerEnemyCode] = 3;
         SetActiveScreen("game");
     });
+
 </script>
