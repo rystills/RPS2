@@ -551,7 +551,7 @@
         selfLineSVG.setAttribute("width", window.innerWidth * 0.95);
         selfLineSVG.setAttribute("height", window.innerHeight * 0.95);
         
-        positionLines();
+        positionLines(false);
     };
     fitLineSVGsToWindow();
 
@@ -578,7 +578,7 @@
         }
     }
 
-    function positionLines() {
+    function positionLines(calculateDivs=true) {
         // get divs
         let partnerChoiceDiv      = document.getElementById("partnerChoiceDiv");
         let partnerEnemyChoiceDiv = document.getElementById("partnerEnemyChoiceDiv");
@@ -588,10 +588,12 @@
             selfChoiceDiv = document.getElementById("selfChoiceItemDiv");
 
         let selfEnemyChoiceDiv = document.getElementById("selfEnemyChoiceDiv").querySelector(".item");
-        lineDivs = [playersAlive[2] ? partnerChoiceDiv : selfChoiceDiv,
-                    playersAlive[3] ? partnerEnemyChoiceDiv : selfEnemyChoiceDiv,
-                    playersAlive[0] ? selfChoiceDiv : partnerChoiceDiv,
-                    playersAlive[1] ? selfEnemyChoiceDiv : partnerEnemyChoiceDiv];
+        if(lineDivs.length === 0 || calculateDivs){
+            lineDivs = [playersAlive[2] ? partnerChoiceDiv : selfChoiceDiv,
+                        playersAlive[3] ? partnerEnemyChoiceDiv : selfEnemyChoiceDiv,
+                        playersAlive[0] ? selfChoiceDiv : partnerChoiceDiv,
+                        playersAlive[1] ? selfEnemyChoiceDiv : partnerEnemyChoiceDiv];
+        }
 
         // get lines
         let partnerLine = document.getElementById("partnerLine");
