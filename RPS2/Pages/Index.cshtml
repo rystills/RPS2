@@ -533,13 +533,13 @@
     function fitLineSVGsToWindow() {
         // partner line
         let partnerLineSVG = document.getElementById("partnerLineSVG");
-        partnerLineSVG.setAttribute("width", window.innerWidth);
-        partnerLineSVG.setAttribute("height", window.innerHeight);
+        partnerLineSVG.setAttribute("width", window.innerWidth * 0.95);
+        partnerLineSVG.setAttribute("height", window.innerHeight * 0.95);
         
         // self line
         let selfLineSVG = document.getElementById("selfLineSVG");
-        selfLineSVG.setAttribute("width", window.innerWidth);
-        selfLineSVG.setAttribute("height", window.innerHeight);
+        selfLineSVG.setAttribute("width", window.innerWidth * 0.95);
+        selfLineSVG.setAttribute("height", window.innerHeight * 0.95);
         
         positionLines();
     };
