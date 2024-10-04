@@ -271,3 +271,16 @@ textarea {
     color: white;
     text-align: center;
 }
+
+.top-body {
+/*    height: 100vh;*/
+    background-color: #594ca5;
+    overflow-x: hidden;
+}
+
+.top-container {
+/*    min-height: 100vh !important;*/
+    background: linear-gradient(to bottom, #342c61, #594ca5);
+    min-width: 100% !important;
+    overflow-x: auto !important;
+}

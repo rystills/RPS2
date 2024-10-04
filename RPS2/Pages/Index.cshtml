@@ -202,6 +202,7 @@
     let starsToWin = 2;
     let playerMap = {}
     let moveChosen = false;
+    let ticking = false;
 
     friendIdInput.addEventListener('input', function () {
         // restrict friend code input to alphanum
@@ -528,7 +529,16 @@
                 break;
         }
     }
+    document.getElementById("scrollContainer").addEventListener("scroll", (event) => {
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                fitLineSVGsToWindow();
+                ticking = false;
+            });
 
+            ticking = true;
+        }
+    });
     window.addEventListener('resize', fitLineSVGsToWindow);
     function fitLineSVGsToWindow() {
         // partner line
