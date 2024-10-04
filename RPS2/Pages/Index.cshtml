@@ -67,16 +67,19 @@
             <img src="images/Logo.svg" class="logo" />
         </section>
         <section style="text-align: center; padding:1px">
-            <label id="resultsText" class="results-text"> You win! </label>
+            <img id="resultsImage" src="images/win.svg" class="results-image mt-5" />
         </section>
         <section style="text-align: center; padding:1px">
-            <a id="playAgainBtn" class="btn btn-primary mt-5">Play again</a>
+            <a id="playAgainBtn" class="btn btn-primary mt-3 mb-5 play-again-btn">Play again?</a>
         </section>
         <section style="text-align: center; padding:1px">
-            <a href="https://store.steampowered.com/app/3107360/Grooveyard/" rel="noopener noreferrer" target="_blank" class="btn btn-primary mt-1">Check out Grooveyard on Steam</a>
+            <label class="note" style="text-align:center !important">Enjoyed Rock Paper Scissors 2v2? Make sure to check out these other fun games!</label>
         </section>
         <section style="text-align: center; padding:1px">
-            <a href="https://store.steampowered.com/app/2217000/Rivals_of_Aether_II/" rel="noopener noreferrer" target="_blank" class="btn btn-primary mt-1">Check out Rivals of Aether II on Steam</a>
+            <div class="d-flex justify-content-center">
+                <a href="https://store.steampowered.com/app/3107360/Grooveyard/" rel="noopener noreferrer" target="_blank" class="btn btn-primary mt-1 wishlist-btn me-3">Check out Grooveyard on Steam</a>
+                <a href="https://store.steampowered.com/app/2217000/Rivals_of_Aether_II/" rel="noopener noreferrer" target="_blank" class="btn btn-primary mt-1 wishlist-btn ms-3">Check out Rivals of Aether II on Steam</a>
+            </div>
         </section>
     </section>
 
@@ -448,12 +451,12 @@
             if (--resultsSecondsRemaining == 0) {
                 if (teamWins >= starsToWin) {
                     reset();
-                    document.getElementById('resultsText').innerText = "You win!"
+                    document.getElementById('resultsImage').src = "images/win.svg"
                     SetActiveScreen("results");
                 }
                 else if (enemyWins >= starsToWin) {
                     reset();
-                    document.getElementById('resultsText').innerText = "You lose!"
+                    document.getElementById('resultsImage').src = "images/lose.svg"
                     SetActiveScreen("results");
                 }
                 else {

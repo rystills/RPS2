@@ -7,7 +7,7 @@
 
 input::placeholder {
     color: #ffffff5e !important;
-    font-size: 28px;
+    font-size: 40px;
 }
 
 /* Set width on the form input elements since they're 100% wide by default */
@@ -19,9 +19,10 @@ textarea {
     color: white !important;
     padding: 10px 10px !important;
     line-height: 20px !important;
-    font-size: 28px !important;
+    font-size: 40px !important;
     border-color: white !important;
     border-width: 2px !important;
+    border-radius: 0.5rem !important;
 }
 
 .note {
@@ -55,6 +56,19 @@ textarea {
     text-align: center;
 }
 
+.results-image {
+    text-align: center;
+    width: 18%;
+}
+
+.play-again-btn {
+    width: 24%;
+}
+
+.wishlist-btn {
+    width: 40%;
+}
+
 .btn-primary {
     color: #fff;
     background-color: #59518B;
@@ -62,8 +76,9 @@ textarea {
     border-width: 2px;
     padding-left: 30px;
     padding-right: 30px;
-    font-size: 28px;
+    font-size: 40px;
     box-shadow: none !important;
+    border-radius: 0.5rem !important;
 }
 
     .btn-primary:hover {
