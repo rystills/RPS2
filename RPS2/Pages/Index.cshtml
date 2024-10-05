@@ -185,6 +185,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.0/signalr.min.js"></script>
 <script>
     let quips = ["Scissors at the ready", "Avalanche incoming", "Paper uncovered"];
+    let waitingLines = ["", "... Just waiting for your friend to join the fray!", "... Just waiting on worthy opponents!", ""];
+    let chosenQuip = 0;
     let moveOptions = ["rock", "paper", "scissors"];
 
     // gamestate
@@ -531,7 +533,8 @@
             case "matchmaking":
                 break;
             case "searching":
-                document.getElementById("waitingQuip").innerText = quips[quips.length * Math.random() | 0] + "... Just waiting for your friend to join the fray!(1 / 4)";
+                chosenQuip = quips.length * Math.random() | 0;
+                updateMatchmakingText(1);
                 document.getElementById("searchingCodeButton").style.display = 
                     document.getElementById("searchingCodeLabel").style.display = document.getElementById("friendIdInput").value.length == 0 ? 'none' : 'visible';
                 break;
@@ -659,6 +662,12 @@
         }
     }
 
+    function updateMatchmakingText(playerCount) {
+        let quip = quips[chosenQuip];
+        console.log(playerCount);
+        document.getElementById("waitingQuip").innerText = quip + waitingLines[playerCount] + " (" + playerCount + "/4)"
+    }
+
     document.getElementById("GUID").addEventListener("click", function () {
         navigator.clipboard.writeText(document.getElementById("GUID-TEXT").innerText);
     });
@@ -736,8 +745,7 @@
     });
 
     connection.on("UpdateMatchmakingProgress", function (numPlayersInRoom) {
-        curText = document.getElementById("waitingQuip").innerText;
-        document.getElementById("waitingQuip").innerText = curText.substr(0, curText.length - 7) + "(" + numPlayersInRoom + " / 4)";
+        updateMatchmakingText(numPlayersInRoom);
     });
 
     connection.on("PlayerMoved", function (playerCode) {
