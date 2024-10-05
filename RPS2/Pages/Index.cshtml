@@ -453,11 +453,13 @@
                 if (teamWins >= starsToWin) {
                     reset();
                     document.getElementById('resultsImage').src = "images/win.svg"
+                    leaveLobby();
                     SetActiveScreen("results");
                 }
                 else if (enemyWins >= starsToWin) {
                     reset();
                     document.getElementById('resultsImage').src = "images/lose.svg"
+                    leaveLobby();
                     SetActiveScreen("results");
                 }
                 else {
@@ -470,6 +472,10 @@
                 resultsInterval = null;
             }
         }, 1000);
+    }
+
+    function leaveLobby(){
+        connection.invoke("LeaveLobby").catch(err => console.error("Error leaving lobby: " + err));
     }
 
     function reset() {

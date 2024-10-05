@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using System.Diagnostics;
+using System.Numerics;
 
 public class Room
 {
@@ -60,8 +61,7 @@ public class GameHub : Hub
     public override async Task OnDisconnectedAsync(Exception exception)
     {
         _connectedUsers.Remove(Context.ConnectionId);
-        string userConnectionId = Context.ConnectionId.Substring(0, 8);
-        roomMap.Remove(userConnectionId);
+        LeaveLobby();
         // TODO: remove from any matchmaking queues
         await base.OnDisconnectedAsync(exception);
     }
@@ -213,17 +213,21 @@ public class GameHub : Hub
         string team2Player2 = room.team2Player2;
         string[] roomPlayers = { team1Player1, team2Player1, team1Player2, team2Player2 };
 
-
-        // TODO: leftoff, continue refactoring this
-
         int divisions = 20;
         HashSet<string> movesReceived = [];
         for (int div = 0; div < divisions; div++)
         {
+            bool playerStillInRoom = false;
             bool shouldBreak = true;
             for (int i = 0; i < roomPlayers.Length; i++)
             {
                 string roomPlayer = roomPlayers[i];
+                // If any player is still in the room, continue the game
+                if (roomMap.ContainsKey(roomPlayer) && roomMap[roomPlayer] == room)
+                {
+                    playerStillInRoom = true;
+                }
+
                 if (_playerActions.ContainsKey(roomPlayer) && !movesReceived.Contains(roomPlayer))
                 {
                     string act = _playerActions[roomPlayer];
@@ -233,13 +237,22 @@ public class GameHub : Hub
                     }
                     movesReceived.Add(roomPlayer);
                 }
-                
+
                 // Break if all alive players have made a choice
                 if (!_playerActions.ContainsKey(roomPlayer) && room.playersAlive[roomPlayer])
                 {
                     shouldBreak = false;
                 }
             }
+
+
+            // If all players have exited the room, stop the game loop
+            // Once we have proper server-authoritative logic, we can check win conditions and things here. 
+            if (!playerStillInRoom)
+            {
+                return;
+            }
+
             if (shouldBreak)
             {
                 break;
@@ -268,6 +281,7 @@ public class GameHub : Hub
         for(int i = 0; i < roomPlayers.Length; ++i)
         {
             string player = roomPlayers[i];
+
             if (!_playerActions.ContainsKey(player))
             {
                 _playerActions[player] = "0"; // Default to rock
