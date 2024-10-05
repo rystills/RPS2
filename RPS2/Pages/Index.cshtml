@@ -722,7 +722,10 @@
     });
 
     // listen for moves
-    connection.on("SetInactive", function () {
+    connection.on("SetInactive", function (alertText) {
+        if(alertText.length > 0){
+            alert(alertText);
+        }
         reset();
         SetActiveScreen("matchmaking");
     });

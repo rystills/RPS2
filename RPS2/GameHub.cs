@@ -44,7 +44,9 @@ public class GameHub : Hub
 
     // teams in matchmaking step 2
     private static Dictionary<string, string> _waitingPairLeaders = [];
-    
+    private static Dictionary<string, string> _reversePairs = [];
+    private static Dictionary<string, string> _specifiedPairs = [];
+
     // player actions
     private static Dictionary<string, string> _playerActions = [];
 
@@ -60,9 +62,15 @@ public class GameHub : Hub
 
     public override async Task OnDisconnectedAsync(Exception exception)
     {
+        if (roomMap.ContainsKey(Context.ConnectionId.Substring(0, 8)))
+        {
+            LeaveLobby();
+        }
+        else
+        {
+            await LeaveMatchmaking();
+        }
         _connectedUsers.Remove(Context.ConnectionId);
-        LeaveLobby();
-        // TODO: remove from any matchmaking queues
         await base.OnDisconnectedAsync(exception);
     }
 
@@ -89,6 +97,7 @@ public class GameHub : Hub
         else
         {
             // check if friend has already requested user
+            _specifiedPairs[userConnectionId] = friendConnectionId;
             if (_waitingPlayers.ContainsKey(friendConnectionId) && _waitingPlayers[friendConnectionId] == userConnectionId)
             {
                 // user and friend requested each other; attempt team matchmaking
@@ -113,6 +122,53 @@ public class GameHub : Hub
         string playerCode = Context.ConnectionId.Substring(0, 8);
         roomMap.Remove(playerCode);
     }
+
+    public async Task LeaveMatchmaking()
+    {
+        string playerCode = Context.ConnectionId.Substring(0, 8);
+
+        if (_waitingPairLeaders.ContainsKey(playerCode) || _reversePairs.ContainsKey(playerCode))
+        {
+            Dictionary<string, string> yourDict;
+            Dictionary<string, string> partnerDict;
+            if (_waitingPairLeaders.ContainsKey(playerCode))
+            {
+                yourDict = _waitingPairLeaders;
+                partnerDict = _reversePairs;
+            }
+            else
+            {
+                yourDict = _reversePairs;
+                partnerDict = _reversePairs;
+            }
+            string partner = yourDict[playerCode];
+            yourDict.Remove(playerCode);
+            partnerDict.Remove(partner);
+
+            if (_specifiedPairs.ContainsKey(playerCode))
+            {
+                _specifiedPairs.Remove(playerCode);
+                _specifiedPairs.Remove(partner);
+                await _hubContext.Clients.Client(GetFullConnectionId(playerCode)).SendAsync("SetInactive", "Your partner has disconnected during matchmaking, make sure you use the correct code if you retry");
+                await _hubContext.Clients.Client(GetFullConnectionId(partner)).SendAsync("SetInactive", "Your partner has disconnected during matchmaking, make sure you use the correct code if you retry");
+            }
+            else
+            {
+                await Clients.Client(GetFullConnectionId(partner)).SendAsync("UpdateMatchmakingProgress", 1);
+                _waitingRandoms.Enqueue(partner);
+            }
+            
+        }
+        else if (_waitingPlayers.ContainsKey(playerCode))
+        {
+            _waitingPlayers.Remove(playerCode);
+        }
+        else if (_waitingRandoms.Contains(playerCode))
+        {
+            _waitingRandoms = new Queue<string>(_waitingRandoms.Where(s => s != playerCode));
+        }
+    }
+
 
     // res: -1 = loss, 0 = tie, 1 = win
     private int GetRPSResult(int a, int b)
@@ -268,7 +324,7 @@ public class GameHub : Hub
             {
                 foreach (string player in roomPlayers)
                 {
-                    await _hubContext.Clients.Client(GetFullConnectionId(player)).SendAsync("SetInactive");
+                    await _hubContext.Clients.Client(GetFullConnectionId(player)).SendAsync("SetInactive", "Your room has gone inactive");
                     roomMap.Remove(player);
                 }
                 return;
@@ -335,6 +391,7 @@ public class GameHub : Hub
             var team2Player1 = otherPair.Key;
             var team2Player2 = otherPair.Value;
             _waitingPairLeaders.Remove(team2Player1);
+            _reversePairs.Remove(team2Player2);
 
             // notify players that they have joined the room
             await Clients.Client(GetFullConnectionId(player1)).SendAsync("JoinRoom",
@@ -373,6 +430,7 @@ public class GameHub : Hub
         {
             // add pair to waiting list
             _waitingPairLeaders[player1] = player2;
+            _reversePairs[player2] = player1;
             await Clients.Client(GetFullConnectionId(player1)).SendAsync("UpdateMatchmakingProgress", 2);
             await Clients.Client(GetFullConnectionId(player2)).SendAsync("UpdateMatchmakingProgress", 2);
         }
