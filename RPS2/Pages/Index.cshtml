@@ -203,6 +203,8 @@
     let playerMap = {}
     let moveChosen = false;
     let ticking = false;
+    let resultsInterval = null;
+    let countdownInterval = null;
 
     friendIdInput.addEventListener('input', function () {
         // restrict friend code input to alphanum
@@ -448,7 +450,7 @@
         }
 
         resultsSecondsRemaining = 3;
-        let resultsInterval = setInterval(() => {
+        resultsInterval = setInterval(() => {
             if (--resultsSecondsRemaining == 0) {
                 if (teamWins >= starsToWin) {
                     reset();
@@ -473,6 +475,14 @@
     }
 
     function reset() {
+        if(resultsInterval != null){
+            clearInterval(resultsInterval);
+            resultsInterval = null;
+        }
+        if (countdownInterval != null) {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+        }
         document.getElementById('team_star_1').src = "images/star_empty.svg";
         document.getElementById('team_star_2').src = "images/star_empty.svg";
         document.getElementById('enemy_star_1').src = "images/star_empty.svg";
@@ -505,7 +515,6 @@
         }
     }
 
-    let countdownInterval = null;
     function SetActiveScreen(elemId) {
         document.getElementById("matchmaking").style.display = 'none';
         document.getElementById("searching").style.display = 'none';
@@ -706,6 +715,12 @@
             }
         }
         revealChoices();
+    });
+
+    // listen for moves
+    connection.on("SetInactive", function () {
+        reset();
+        SetActiveScreen("matchmaking");
     });
 
     // start next round

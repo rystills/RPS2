@@ -9,6 +9,7 @@ public class Room
     public string team2Player2 { get; set; }
     public Dictionary<string, bool> playersAlive { get; set; }
     public Dictionary<string, string> playerMoves { get; set; }
+    public int inactivityCount { get; set; }
 
     public Room(string team1Player1, string team1Player2, string team2Player1, string team2Player2, Dictionary<string, bool> playersAlive, Dictionary<string, string> playerMoves)
     {
@@ -18,6 +19,7 @@ public class Room
         this.team2Player2 = team2Player2;
         this.playersAlive = playersAlive;
         this.playerMoves = playerMoves;
+        inactivityCount = 0;
     }
 }
 
@@ -58,6 +60,8 @@ public class GameHub : Hub
     public override async Task OnDisconnectedAsync(Exception exception)
     {
         _connectedUsers.Remove(Context.ConnectionId);
+        string userConnectionId = Context.ConnectionId.Substring(0, 8);
+        roomMap.Remove(userConnectionId);
         // TODO: remove from any matchmaking queues
         await base.OnDisconnectedAsync(exception);
     }
@@ -102,6 +106,12 @@ public class GameHub : Hub
     public void SubmitMove(string action)
     {
         _playerActions[Context.ConnectionId.Substring(0, 8)] = action;
+    }
+
+    public void LeaveLobby()
+    {
+        string playerCode = Context.ConnectionId.Substring(0, 8);
+        roomMap.Remove(playerCode);
     }
 
     // res: -1 = loss, 0 = tie, 1 = win
@@ -240,6 +250,20 @@ public class GameHub : Hub
             await Task.Delay(_roundTime / divisions);
         }
 
+        // After ten rounds on inactivity, stop server
+        if(movesReceived.Count == 0)
+        {
+            room.inactivityCount++;
+            if (room.inactivityCount > 0)
+            {
+                foreach (string player in roomPlayers)
+                {
+                    await _hubContext.Clients.Client(GetFullConnectionId(player)).SendAsync("SetInactive");
+                    roomMap.Remove(player);
+                }
+                return;
+            }
+        }
 
         // The things we do to not have to rewrite the RPS logic when tired...
         int[] playerChoices = new int[4];
@@ -326,11 +350,12 @@ public class GameHub : Hub
             Dictionary<string, bool> playersAlive = [];
             Dictionary<string, string> roomMoves = [];
             string[] roomPlayers = { player1, team2Player1, player2, team2Player2 };
+            Room room = new Room(player1, player2, team2Player1, team2Player2, playersAlive, roomMoves);
             foreach (string roomPlayer in roomPlayers)
             {
                 playersAlive[roomPlayer] = true;
+                roomMap[roomPlayer] = room;
             }
-            Room room = new Room(player1, player2, team2Player1, team2Player2, playersAlive, roomMoves);
             _ = StartRoundTimer(room);
         }
         else
