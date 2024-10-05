@@ -220,30 +220,27 @@ public class GameHub : Hub
         HashSet<string> movesReceived = [];
         for (int div = 0; div < divisions; div++)
         {
+            bool shouldBreak = true;
             for (int i = 0; i < roomPlayers.Length; i++)
             {
                 string roomPlayer = roomPlayers[i];
                 if (_playerActions.ContainsKey(roomPlayer) && !movesReceived.Contains(roomPlayer))
                 {
                     string act = _playerActions[roomPlayer];
-                    if (act != "die")
+                    foreach (string sendPlayer in roomPlayers)
                     {
-                        foreach (string sendPlayer in roomPlayers)
-                        {
-                            await _hubContext.Clients.Client(GetFullConnectionId(sendPlayer)).SendAsync("PlayerMoved", roomPlayer);
-                        }
-                        movesReceived.Add(roomPlayer);
+                        await _hubContext.Clients.Client(GetFullConnectionId(sendPlayer)).SendAsync("PlayerMoved", roomPlayer);
                     }
-
-                    else
-                    {
-                        // Don't send die back to client
-                        movesReceived.Add(roomPlayer);
-                        _playerActions.Remove(roomPlayer);
-                    }
+                    movesReceived.Add(roomPlayer);
+                }
+                
+                // Break if all alive players have made a choice
+                if (!_playerActions.ContainsKey(roomPlayer) && room.playersAlive[roomPlayer])
+                {
+                    shouldBreak = false;
                 }
             }
-            if (movesReceived.Count == roomPlayers.Length)
+            if (shouldBreak)
             {
                 break;
             }
@@ -254,7 +251,7 @@ public class GameHub : Hub
         if(movesReceived.Count == 0)
         {
             room.inactivityCount++;
-            if (room.inactivityCount > 0)
+            if (room.inactivityCount > 10)
             {
                 foreach (string player in roomPlayers)
                 {

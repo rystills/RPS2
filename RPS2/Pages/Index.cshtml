@@ -247,8 +247,6 @@
         else {
             document.getElementById('selfChoice').src = "images/skull_icon.svg"
             // TODO: might need to make death calculations serverside logic to avoid cheating
-            connection.invoke("SubmitMove", "die")
-                .catch(err => console.error("Error submitting action: " + err));
         }
 
         if (playersAlive[2]) {
