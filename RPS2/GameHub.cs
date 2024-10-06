@@ -297,7 +297,7 @@ public class GameHub : Hub
                 if (_playerActions.ContainsKey(roomPlayer) && !movesReceived.Contains(roomPlayer))
                 {
                     string act = _playerActions[roomPlayer];
-                    foreach (string sendPlayer in roomPlayers)
+                    foreach (string sendPlayer in roomPlayers.Where(p => roomMap.ContainsKey(p)))
                     {
                         await _hubContext.Clients.Client(GetFullConnectionId(sendPlayer)).SendAsync("PlayerMoved", roomPlayer);
                     }
@@ -332,7 +332,7 @@ public class GameHub : Hub
             room.inactivityCount++;
             if (room.inactivityCount > 10)
             {
-                foreach (string player in roomPlayers)
+                foreach (string player in roomPlayers.Where(p => roomMap.ContainsKey(p)))
                 {
                     await _hubContext.Clients.Client(GetFullConnectionId(player)).SendAsync("SetInactive", "Your room has gone inactive");
                     roomMap.Remove(player);
@@ -375,17 +375,25 @@ public class GameHub : Hub
         _playerActions.Remove(team2Player2);
 
         // send moves to each client in their expected order
-        await _hubContext.Clients.Client(GetFullConnectionId(team1Player1)).SendAsync("ReceiveMoves", t1p1Move + t2p1Move + t1p2Move + t2p2Move);
-        await _hubContext.Clients.Client(GetFullConnectionId(team1Player2)).SendAsync("ReceiveMoves", t1p2Move + t2p2Move + t1p1Move + t2p1Move);
-        await _hubContext.Clients.Client(GetFullConnectionId(team2Player1)).SendAsync("ReceiveMoves", t2p1Move + t1p1Move + t2p2Move + t1p2Move);
+        if (roomMap.ContainsKey(team1Player1))
+            await _hubContext.Clients.Client(GetFullConnectionId(team1Player1)).SendAsync("ReceiveMoves", t1p1Move + t2p1Move + t1p2Move + t2p2Move);
+        if (roomMap.ContainsKey(team1Player2))
+            await _hubContext.Clients.Client(GetFullConnectionId(team1Player2)).SendAsync("ReceiveMoves", t1p2Move + t2p2Move + t1p1Move + t2p1Move);
+        if (roomMap.ContainsKey(team2Player1))
+            await _hubContext.Clients.Client(GetFullConnectionId(team2Player1)).SendAsync("ReceiveMoves", t2p1Move + t1p1Move + t2p2Move + t1p2Move);
+        if (roomMap.ContainsKey(team2Player2))
         await _hubContext.Clients.Client(GetFullConnectionId(team2Player2)).SendAsync("ReceiveMoves", t2p2Move + t1p2Move + t2p1Move + t1p1Move);
 
         // wait 3 seconds and then start the next round
         // TODO: stop on game over
         await Task.Delay(3000);
-        await _hubContext.Clients.Client(GetFullConnectionId(team1Player1)).SendAsync("StartRound");
+        if (roomMap.ContainsKey(team1Player1))
+            await _hubContext.Clients.Client(GetFullConnectionId(team1Player1)).SendAsync("StartRound");
+        if (roomMap.ContainsKey(team1Player2))
         await _hubContext.Clients.Client(GetFullConnectionId(team1Player2)).SendAsync("StartRound");
+        if (roomMap.ContainsKey(team2Player1))
         await _hubContext.Clients.Client(GetFullConnectionId(team2Player1)).SendAsync("StartRound");
+        if (roomMap.ContainsKey(team2Player2))
         await _hubContext.Clients.Client(GetFullConnectionId(team2Player2)).SendAsync("StartRound");
         
         _ = StartRoundTimer(room);
