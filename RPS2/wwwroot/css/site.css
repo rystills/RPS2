@@ -14,7 +14,7 @@ input::placeholder {
 input[type="text"],
 select,
 textarea {
-    max-width: 50% !important;
+    width: 900px !important;
     background-color: #59518B !important;
     color: white !important;
     padding: 10px 10px !important;
@@ -30,7 +30,7 @@ textarea {
     color: white;
     display: inline-block;
     text-align: left;
-    width: 50%;
+    width: 900px;
 }
 
 .friend-note {
@@ -38,7 +38,7 @@ textarea {
     color: white;
     display: inline-block;
     text-align: center;
-    width: 50%;
+    width: 900px;
 }
 
 .waiting-text {
@@ -58,15 +58,15 @@ textarea {
 
 .results-image {
     text-align: center;
-    width: 18%;
+    width: 324px;
 }
 
 .play-again-btn {
-    width: 24%;
+    width: 432px;
 }
 
 .wishlist-btn {
-    width: 40%;
+    width: 720px;
 }
 
 .btn-primary {
@@ -81,19 +81,19 @@ textarea {
     border-radius: 0.5rem !important;
 }
 
-    .btn-primary:hover {
-        color: #fff;
-        background-color: #7E73C4;
-        border-color: white;
-    }
+.btn-primary:hover {
+    color: #fff;
+    background-color: #7E73C4;
+    border-color: white;
+}
 
-    .btn-primary:focus,
-    .btn-primary:active,
-    .btn-primary.active:focus {
-        color: #fff !important;
-        background-color: #2B2656 !important;
-        border-color: white !important;
-    }
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active:focus {
+    color: #fff !important;
+    background-color: #2B2656 !important;
+    border-color: white !important;
+}
 
 .btn {
 }
