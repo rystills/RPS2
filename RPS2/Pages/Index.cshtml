@@ -206,6 +206,7 @@
     let ticking = false;
     let resultsInterval = null;
     let countdownInterval = null;
+    let round = 1;
 
     friendIdInput.addEventListener('input', function () {
         // restrict friend code input to alphanum
@@ -239,6 +240,8 @@
     }
 
     function startNextRound() {
+        document.getElementById('round').innerText = "Round " + round;
+        ++round;
 
         if (playersAlive[0]) {
             document.getElementById('chooseItem').style.setProperty('display', 'flex', 'important');
@@ -496,6 +499,7 @@
         teamWins = 0;
         playersAlive = [true, true, true, true];
         moveChosen = false;
+        round = 1;
     }
 
     function winRound() {
