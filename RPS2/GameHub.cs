@@ -269,6 +269,16 @@ public class GameHub : Hub
         string team2Player2 = room.team2Player2;
         string[] roomPlayers = { team1Player1, team2Player1, team1Player2, team2Player2 };
 
+        // If a full team has wiped, reset
+        if ((!room.playersAlive[team1Player1] && !room.playersAlive[team1Player2]) 
+            || (!room.playersAlive[team2Player1] && !room.playersAlive[team2Player2]))
+        {
+            foreach(string player in roomPlayers)
+            {
+                room.playersAlive[player] = true;
+            }
+        }
+
         int divisions = 20;
         HashSet<string> movesReceived = [];
         for (int div = 0; div < divisions; div++)
