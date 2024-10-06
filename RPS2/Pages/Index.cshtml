@@ -386,6 +386,12 @@
             let selfEnemyRes = -selfRes;
             let partnerRes = res1 = GetRPSResult(playerChoices[2], playerChoices[3]);
             let partnerEnemyRes = -partnerRes;
+            if(aiMode){
+                playersAlive[0] = selfRes >= 0;
+                playersAlive[1] = selfEnemyRes >= 0;
+                playersAlive[2] = partnerRes >= 0;
+                playersAlive[3] = partnerEnemyRes >= 0;
+            }
         }
         // you dead
         else if (!playersAlive[0] && playersAlive[1] && playersAlive[2] && playersAlive[3]) {
@@ -393,6 +399,11 @@
             let selfEnemyRes = -partnerRes1;
             let partnerRes2 = res1 = GetRPSResult(playerChoices[2], playerChoices[3]);
             let partnerEnemyRes = -partnerRes2;
+            if (aiMode) {
+                playersAlive[1] = selfEnemyRes >= 0;
+                playersAlive[2] = partnerRes2 >= 0 && partnerRes2 >= 0;
+                playersAlive[3] = partnerEnemyRes >= 0;
+            }
         }
         // partner dead
         else if (playersAlive[0] && playersAlive[1] && !playersAlive[2] && playersAlive[3]) {
@@ -400,6 +411,11 @@
             let selfEnemyRes = -selfRes1;
             let selfRes2 = res1 = GetRPSResult(playerChoices[0], playerChoices[3]);
             let partnerEnemyRes = -selfRes2;
+            if (aiMode) {
+                playersAlive[0] = selfRes1 >= 0 && selfRes2 >= 0;
+                playersAlive[1] = selfEnemyRes >= 0;
+                playersAlive[3] = partnerEnemyRes >= 0;
+            }
         }
         // your enemy dead
         else if (playersAlive[0] && !playersAlive[1] && playersAlive[2] && playersAlive[3]) {
@@ -407,6 +423,11 @@
             let partnerEnemyRes1 = -selfRes;
             let partnerRes = res1 = GetRPSResult(playerChoices[2], playerChoices[3]);
             let partnerEnemyRes2 = -partnerRes;
+            if (aiMode) {
+                playersAlive[0] = selfRes >= 0;
+                playersAlive[2] = partnerRes >= 0;
+                playersAlive[3] = partnerEnemyRes1 >= 0 && partnerEnemyRes2 >= 0;
+            }
         }
         // partner enemy dead
         else if (playersAlive[0] && playersAlive[1] && playersAlive[2] && !playersAlive[3]) {
@@ -414,6 +435,11 @@
             let selfEnemyRes1 = -selfRes;
             let partnerRes = res1 = GetRPSResult(playerChoices[2], playerChoices[1]);
             let selfEnemyRes2 = -partnerRes;
+            if (aiMode) {
+                playersAlive[0] = selfRes >= 0;
+                playersAlive[1] = selfEnemyRes1 >= 0 && selfEnemyRes2 >= 0;
+                playersAlive[2] = partnerRes >= 0;
+            }
         }
 
         // two dead
@@ -423,12 +449,17 @@
             let enemyAlive = playersAlive[1] ? 1 : 3;
             let teamRes = res1 = res2 = GetRPSResult(playerChoices[teamAlive], playerChoices[enemyAlive]);
             let enemyRes = -teamRes;
+            if (aiMode) {
+                playersAlive[teamAlive] = teamRes >= 0;
+                playersAlive[enemyAlive] = enemyRes >= 0;
+            }
         }
         recolorLines();
 
-
-        for (let playerCode in playerMap) { 
-            playersAlive[playerMap[playerCode]] = serverPlayersAlive[playerCode];
+        if (!aiMode) {
+            for (let playerCode in playerMap) {
+                playersAlive[playerMap[playerCode]] = serverPlayersAlive[playerCode];
+            }
         }
 
         if (!playersAlive[1] && !playersAlive[3]) {
