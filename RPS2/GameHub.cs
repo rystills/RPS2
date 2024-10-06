@@ -395,22 +395,22 @@ public class GameHub : Hub
 
             // notify players that they have joined the room
             await Clients.Client(GetFullConnectionId(player1)).SendAsync("JoinRoom",
-                _connectedUsers[GetFullConnectionId(player2)], _connectedUsers[GetFullConnectionId(team2Player1)], _connectedUsers[GetFullConnectionId(team2Player2)],
+                _connectedUsers[GetFullConnectionId(player1)], _connectedUsers[GetFullConnectionId(player2)], _connectedUsers[GetFullConnectionId(team2Player1)], _connectedUsers[GetFullConnectionId(team2Player2)],
                 player1, player2, team2Player1, team2Player2
                 );
 
             await Clients.Client(GetFullConnectionId(player2)).SendAsync("JoinRoom",
-                _connectedUsers[GetFullConnectionId(player1)], _connectedUsers[GetFullConnectionId(team2Player2)], _connectedUsers[GetFullConnectionId(team2Player1)],
+                _connectedUsers[GetFullConnectionId(player2)], _connectedUsers[GetFullConnectionId(player1)], _connectedUsers[GetFullConnectionId(team2Player2)], _connectedUsers[GetFullConnectionId(team2Player1)],
                 player2, player1, team2Player2, team2Player1
                 );
 
             await Clients.Client(GetFullConnectionId(team2Player1)).SendAsync("JoinRoom",
-                _connectedUsers[GetFullConnectionId(team2Player2)], _connectedUsers[GetFullConnectionId(player1)], _connectedUsers[GetFullConnectionId(player2)],
+                _connectedUsers[GetFullConnectionId(team2Player1)],  _connectedUsers[GetFullConnectionId(team2Player2)], _connectedUsers[GetFullConnectionId(player1)], _connectedUsers[GetFullConnectionId(player2)],
                 team2Player1, team2Player2, player1, player2
                 );
 
             await Clients.Client(GetFullConnectionId(team2Player2)).SendAsync("JoinRoom",
-                _connectedUsers[GetFullConnectionId(team2Player1)], _connectedUsers[GetFullConnectionId(player2)], _connectedUsers[GetFullConnectionId(player1)],
+                _connectedUsers[GetFullConnectionId(team2Player2)], _connectedUsers[GetFullConnectionId(team2Player1)], _connectedUsers[GetFullConnectionId(player2)], _connectedUsers[GetFullConnectionId(player1)],
                 team2Player2, team2Player1, player2, player1
                 );
 

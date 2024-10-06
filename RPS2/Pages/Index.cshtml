@@ -152,7 +152,7 @@
                                 <img id="selfChoice" src="images/rock.svg" />
                             </div>
                         </div>
-                        <span class="player-name-bottom">
+                        <span id="selfName" class="player-name-bottom">
                             You!
                         </span>
                     </div>
@@ -778,8 +778,9 @@
         console.log(playerMoves);
     });
 
-    connection.on("JoinRoom", function (partnerName, selfEnemyName, partnerEnemyName, selfCode, partnerCode, selfEnemyCode, partnerEnemyCode) {
+    connection.on("JoinRoom", function (selfName, partnerName, selfEnemyName, partnerEnemyName, selfCode, partnerCode, selfEnemyCode, partnerEnemyCode) {
         // display room info
+        document.getElementById("selfName").innerText = selfName + " (you)"
         document.getElementById("selfEnemyName").innerText = selfEnemyName;
         document.getElementById("partnerName").innerText = partnerName;
         document.getElementById("partnerEnemyName").innerText = partnerEnemyName;
