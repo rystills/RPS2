@@ -3,7 +3,7 @@
 
 <main>
     <!-- homepage (matchmaking) -->
-    <section id="matchmaking" class="center" style="">
+    <section id="matchmaking" class="matchmaking-sect">
         <section style="text-align: center; padding:1px">
             <img src="images/Logo.svg" class="mb-5 logo" />
         </section>
@@ -36,7 +36,7 @@
     </section>
 
     <!-- searching -->
-    <section id="searching" class="center" style="display:none">
+    <section id="searching" class="searching-sect" style="display:none">
         <section style="text-align: center; padding:1px">
             <img src="images/Logo.svg" class="logo" />
         </section>
@@ -62,7 +62,7 @@
     </section>
 
     <!-- results -->
-    <section id="results" class="center" style="display:none">
+    <section id="results" class="results-sect" style="display:none">
         <section style="text-align: center; padding:1px">
             <img src="images/Logo.svg" class="logo" />
         </section>
@@ -529,7 +529,7 @@
         document.getElementById("searching").style.display = 'none';
         document.getElementById("game").style.display = 'none';
         document.getElementById("results").style.display = 'none';
-        document.getElementById(elemId).style.display = 'unset';
+        document.getElementById(elemId).style.display = '';
 
         // perform necessary operations on screen change
         switch (elemId) {

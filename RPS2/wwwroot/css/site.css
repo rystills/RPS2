@@ -284,3 +284,15 @@ textarea {
     min-width: 100% !important;
     overflow-x: auto !important;
 }
+
+.matchmaking-sect {
+    margin-top: 100px !important;
+}
+
+.results-sect {
+    margin-top: 100px !important;
+}
+
+.searching-sect {
+    margin-top: 100px !important;
+}
