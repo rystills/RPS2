@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using System.Diagnostics;
-using System.Numerics;
 
 public class Room
 {
@@ -8,19 +6,23 @@ public class Room
     public string team1Player2 { get; set; }
     public string team2Player1 { get; set; }
     public string team2Player2 { get; set; }
-    public Dictionary<string, bool> playersAlive { get; set; }
-    public Dictionary<string, string> playerMoves { get; set; }
+    public string[] players => [team1Player1, team2Player1, team1Player2, team2Player2];
+    public Dictionary<string, bool> playersAlive { get; set; } = [];
+    public Dictionary<string, string> playerMoves { get; set; } = [];
     public int inactivityCount { get; set; }
 
-    public Room(string team1Player1, string team1Player2, string team2Player1, string team2Player2, Dictionary<string, bool> playersAlive, Dictionary<string, string> playerMoves)
+    public Room(string team1Player1, string team1Player2, string team2Player1, string team2Player2)
     {
         this.team1Player1 = team1Player1;
         this.team1Player2 = team1Player2;
         this.team2Player1 = team2Player1;
         this.team2Player2 = team2Player2;
-        this.playersAlive = playersAlive;
-        this.playerMoves = playerMoves;
-        inactivityCount = 0;
+
+        foreach (string player in players)
+        {
+            playersAlive[player] = true;
+            GameHub.roomMap[player] = this;
+        }
     }
 }
 
@@ -29,14 +31,12 @@ public class GameHub : Hub
     private readonly IHubContext<GameHub> _hubContext;
 
     public GameHub(IHubContext<GameHub> hubContext)
-    {
-        _hubContext = hubContext;
-    }
+        => _hubContext = hubContext;
 
-    // players connected to the server
+    // players connected to the server and their corresponding nicknames
     private static Dictionary<string, string> _connectedUsers = [];
 
-    // players connected to matchmaking
+    // players connected to matchmaking and their corresponding partner IDs
     private static Dictionary<string, string> _waitingPlayers = [];
 
     // players connected to random matchmaking
@@ -50,9 +50,11 @@ public class GameHub : Hub
     // player actions
     private static Dictionary<string, string> _playerActions = [];
 
+    // round timer in ms
     private static int _roundTime = 10000;
 
-    private static Dictionary<string, Room> roomMap = [];
+    // player ids and their corresponding rooms
+    public static Dictionary<string, Room> roomMap = [];
 
     public override async Task OnConnectedAsync()
     {
@@ -60,16 +62,12 @@ public class GameHub : Hub
         await base.OnConnectedAsync();
     }
 
-    public override async Task OnDisconnectedAsync(Exception exception)
+    public override async Task OnDisconnectedAsync(Exception? exception)
     {
         if (roomMap.ContainsKey(Context.ConnectionId.Substring(0, 8)))
-        {
             LeaveLobby();
-        }
         else
-        {
             await LeaveMatchmaking();
-        }
         _connectedUsers.Remove(Context.ConnectionId);
         await base.OnDisconnectedAsync(exception);
     }
@@ -78,22 +76,22 @@ public class GameHub : Hub
 
     public async Task StartMatchmaking(string friendConnectionId, string name)
     {
+        // update nickname
         _connectedUsers[Context.ConnectionId] = name;
         string userConnectionId = Context.ConnectionId.Substring(0, 8);
 
+        // random matchmaking
         if (friendConnectionId.Length == 0)
         {
-            string possibleFriend;
-            if (_waitingRandoms.TryDequeue(out possibleFriend))
-            {
+            // enter team matchmaking with first available random
+            if (_waitingRandoms.TryDequeue(out string? possibleFriend))
                 await MatchTeams(userConnectionId, possibleFriend);
-            }
-            else
-            {
-                _waitingRandoms.Enqueue(userConnectionId);
-            }
+            
+            // no randoms available; wait in random matchmaking queue
+            else _waitingRandoms.Enqueue(userConnectionId);
         }
 
+        // friend matchmaking
         else
         {
             // check if friend has already requested user
@@ -104,18 +102,14 @@ public class GameHub : Hub
                 _waitingPlayers.Remove(friendConnectionId);
                 await MatchTeams(friendConnectionId, userConnectionId);
             }
-            else
-            {
-                // add user to waiting list, requesting friend
-                _waitingPlayers[userConnectionId] = friendConnectionId;
-            }
+            
+            // add user to waiting list, requesting friend
+            else _waitingPlayers[userConnectionId] = friendConnectionId;
         }
     }
 
     public void SubmitMove(string action)
-    {
-        _playerActions[Context.ConnectionId.Substring(0, 8)] = action;
-    }
+        => _playerActions[Context.ConnectionId.Substring(0, 8)] = action;
 
     public void LeaveLobby()
     {
@@ -127,8 +121,10 @@ public class GameHub : Hub
     {
         string playerCode = Context.ConnectionId.Substring(0, 8);
 
+        // remove from team matchmaking
         if (_waitingPairLeaders.ContainsKey(playerCode) || _reversePairs.ContainsKey(playerCode))
         {
+            // determine whether you're in the primary or reverse matchmaking pair dict
             Dictionary<string, string> yourDict;
             Dictionary<string, string> partnerDict;
             if (_waitingPairLeaders.ContainsKey(playerCode))
@@ -139,50 +135,49 @@ public class GameHub : Hub
             else
             {
                 yourDict = _reversePairs;
-                partnerDict = _reversePairs;
+                partnerDict = _waitingPairLeaders;
             }
-            string partner = yourDict[playerCode];
+            string partnerCode = yourDict[playerCode];
+            
+            // remove you and your partner from the matchmaking pair dicts
             yourDict.Remove(playerCode);
-            partnerDict.Remove(partner);
+            partnerDict.Remove(partnerCode);
 
+            // if players connected via friend matchmaking, kick both to the main menu
             if (_specifiedPairs.ContainsKey(playerCode))
             {
                 _specifiedPairs.Remove(playerCode);
-                _specifiedPairs.Remove(partner);
+                _specifiedPairs.Remove(partnerCode);
                 await _hubContext.Clients.Client(GetFullConnectionId(playerCode)).SendAsync("SetInactive", "Your partner has disconnected during matchmaking, make sure you use the correct code if you retry");
-                await _hubContext.Clients.Client(GetFullConnectionId(partner)).SendAsync("SetInactive", "Your partner has disconnected during matchmaking, make sure you use the correct code if you retry");
+                await _hubContext.Clients.Client(GetFullConnectionId(partnerCode)).SendAsync("SetInactive", "Your partner has disconnected during matchmaking, make sure you use the correct code if you retry");
             }
+
+            // if players connected randomly, send your partner back to the random queue
             else
             {
-                await Clients.Client(GetFullConnectionId(partner)).SendAsync("UpdateMatchmakingProgress", 1);
-                _waitingRandoms.Enqueue(partner);
+                await Clients.Client(GetFullConnectionId(partnerCode)).SendAsync("UpdateMatchmakingProgress", 1);
+                _waitingRandoms.Enqueue(partnerCode);
             }
-            
         }
-        else if (_waitingPlayers.ContainsKey(playerCode))
-        {
-            _waitingPlayers.Remove(playerCode);
-        }
-        else if (_waitingRandoms.Contains(playerCode))
-        {
-            _waitingRandoms = new Queue<string>(_waitingRandoms.Where(s => s != playerCode));
-        }
-    }
 
+        // remove from friend matchmaking
+        else if (_waitingPlayers.ContainsKey(playerCode))
+            _waitingPlayers.Remove(playerCode);
+        
+        // remove from random matchmaking
+        else if (_waitingRandoms.Contains(playerCode))
+            _waitingRandoms = new(_waitingRandoms.Where(s => s != playerCode));
+    }
 
     // res: -1 = loss, 0 = tie, 1 = win
     private int GetRPSResult(int a, int b)
     {
         // rock
         if (a == 0)
-        {
             return b == 0 ? 0 : (b == 1 ? -1 : 1);
-        }
         // paper
         if (a == 1)
-        {
             return b == 0 ? 1 : (b == 1 ? 0 : -1);
-        }
         // scissors
         return b == 0 ? -1 : (b == 1 ? 1 : 0);
     }
@@ -260,142 +255,115 @@ public class GameHub : Hub
         }
     }
 
+    private bool PlayerInRoom(string playerIdShort, Room room)
+        => roomMap.ContainsKey(playerIdShort) && roomMap[playerIdShort] == room;
+
     public async Task StartRoundTimer(Room room)
     {
         // wait for round timer to expire, or for all players to submit their move
-        string team1Player1 = room.team1Player1;
-        string team1Player2 = room.team1Player2;
-        string team2Player1 = room.team2Player1;
-        string team2Player2 = room.team2Player2;
-        string[] roomPlayers = { team1Player1, team2Player1, team1Player2, team2Player2 };
-
         // If a full team has wiped, reset
-        if ((!room.playersAlive[team1Player1] && !room.playersAlive[team1Player2]) 
-            || (!room.playersAlive[team2Player1] && !room.playersAlive[team2Player2]))
+        if ((!room.playersAlive[room.team1Player1] && !room.playersAlive[room.team1Player2]) 
+            || (!room.playersAlive[room.team2Player1] && !room.playersAlive[room.team2Player2]))
         {
-            foreach(string player in roomPlayers)
-            {
+            foreach(string player in room.players)
                 room.playersAlive[player] = true;
-            }
         }
 
         int divisions = 20;
         HashSet<string> movesReceived = [];
-        for (int div = 0; div < divisions; div++)
+        for (int div = 0; div < divisions; ++div)
         {
             bool playerStillInRoom = false;
-            bool shouldBreak = true;
-            for (int i = 0; i < roomPlayers.Length; i++)
+            bool allPlayersChosen = true;
+            foreach (string roomPlayer in room.players)
             {
-                string roomPlayer = roomPlayers[i];
                 // If any player is still in the room, continue the game
-                if (roomMap.ContainsKey(roomPlayer) && roomMap[roomPlayer] == room)
-                {
-                    playerStillInRoom = true;
-                }
+                playerStillInRoom |= PlayerInRoom(roomPlayer, room);
 
+                // alert all players each time a move is entered
                 if (_playerActions.ContainsKey(roomPlayer) && !movesReceived.Contains(roomPlayer))
                 {
-                    string act = _playerActions[roomPlayer];
-                    foreach (string sendPlayer in roomPlayers.Where(p => roomMap.ContainsKey(p)))
-                    {
-                        await _hubContext.Clients.Client(GetFullConnectionId(sendPlayer)).SendAsync("PlayerMoved", roomPlayer);
-                    }
                     movesReceived.Add(roomPlayer);
+                    foreach (string sendPlayer in room.players.Where(p => PlayerInRoom(p, room)))
+                        await _hubContext.Clients.Client(GetFullConnectionId(sendPlayer)).SendAsync("PlayerMoved", roomPlayer);
                 }
 
                 // Break if all alive players have made a choice
-                if (!_playerActions.ContainsKey(roomPlayer) && room.playersAlive[roomPlayer])
-                {
-                    shouldBreak = false;
-                }
+                allPlayersChosen &= _playerActions.ContainsKey(roomPlayer) || !room.playersAlive[roomPlayer];
             }
-
 
             // If all players have exited the room, stop the game loop
             // Once we have proper server-authoritative logic, we can check win conditions and things here. 
-            if (!playerStillInRoom)
-            {
-                return;
-            }
+            if (!playerStillInRoom) return;
 
-            if (shouldBreak)
-            {
-                break;
-            }
+            // stop round timer immediately once all players have selected a move
+            if (allPlayersChosen) break;
+
             await Task.Delay(_roundTime / divisions);
         }
 
         // After ten rounds on inactivity, stop server
-        if(movesReceived.Count == 0)
+        if (movesReceived.Count == 0 && ++room.inactivityCount > 10)
         {
-            room.inactivityCount++;
-            if (room.inactivityCount > 10)
+            foreach (string player in room.players.Where(p => PlayerInRoom(p, room)))
             {
-                foreach (string player in roomPlayers.Where(p => roomMap.ContainsKey(p)))
-                {
-                    await _hubContext.Clients.Client(GetFullConnectionId(player)).SendAsync("SetInactive", "Your room has gone inactive");
-                    roomMap.Remove(player);
-                }
-                return;
+                await _hubContext.Clients.Client(GetFullConnectionId(player)).SendAsync("SetInactive", "Your room has gone inactive");
+                roomMap.Remove(player);
             }
+            return;
         }
 
-        // The things we do to not have to rewrite the RPS logic when tired...
+        // parse player choices and alive status
         int[] playerChoices = new int[4];
         bool[] playersAlive = new bool[4];
-        for(int i = 0; i < roomPlayers.Length; ++i)
+        for(int i = 0; i < room.players.Length; ++i)
         {
-            string player = roomPlayers[i];
+            string player = room.players[i];
 
+            // default to rock
             if (!_playerActions.ContainsKey(player))
-            {
-                _playerActions[player] = "0"; // Default to rock
-            }
-            playerChoices[i] = Int32.Parse(_playerActions[player]);
+                _playerActions[player] = "0";
+            
+            playerChoices[i] = int.Parse(_playerActions[player]);
             playersAlive[i] = room.playersAlive[player];
         }
 
+        // update players alive status
         setPlayersAlive(playersAlive, playerChoices);
-        for (int i = 0; i < roomPlayers.Length; ++i)
-        {
-            string player = roomPlayers[i];
-            room.playersAlive[player] = playersAlive[i];
-        }
+        for (int i = 0; i < room.players.Length; ++i)
+            room.playersAlive[room.players[i]] = playersAlive[i];
 
-        string t1p1Move = _playerActions[team1Player1];
-        string t1p2Move = _playerActions[team1Player2];
-        string t2p1Move = _playerActions[team2Player1];
-        string t2p2Move = _playerActions[team2Player2];
+        // record player moves
+        string t1p1Move = _playerActions[room.team1Player1];
+        string t1p2Move = _playerActions[room.team1Player2];
+        string t2p1Move = _playerActions[room.team2Player1];
+        string t2p2Move = _playerActions[room.team2Player2];
 
         // clear moves after processing
-        _playerActions.Remove(team1Player1);
-        _playerActions.Remove(team1Player2);
-        _playerActions.Remove(team2Player1);
-        _playerActions.Remove(team2Player2);
+        foreach (string player in room.players)
+            _playerActions.Remove(player);
 
         // send moves to each client in their expected order
         // send alive to players as well to avoid going out of sync
-        if (roomMap.ContainsKey(team1Player1))
-            await _hubContext.Clients.Client(GetFullConnectionId(team1Player1)).SendAsync("ReceiveMoves", t1p1Move + t2p1Move + t1p2Move + t2p2Move, room.playersAlive);
-        if (roomMap.ContainsKey(team1Player2))
-            await _hubContext.Clients.Client(GetFullConnectionId(team1Player2)).SendAsync("ReceiveMoves", t1p2Move + t2p2Move + t1p1Move + t2p1Move, room.playersAlive);
-        if (roomMap.ContainsKey(team2Player1))
-            await _hubContext.Clients.Client(GetFullConnectionId(team2Player1)).SendAsync("ReceiveMoves", t2p1Move + t1p1Move + t2p2Move + t1p2Move, room.playersAlive);
-        if (roomMap.ContainsKey(team2Player2))
-            await _hubContext.Clients.Client(GetFullConnectionId(team2Player2)).SendAsync("ReceiveMoves", t2p2Move + t1p2Move + t2p1Move + t1p1Move, room.playersAlive);
+        if (PlayerInRoom(room.team1Player1, room))
+            await _hubContext.Clients.Client(GetFullConnectionId(room.team1Player1)).SendAsync("ReceiveMoves", t1p1Move + t2p1Move + t1p2Move + t2p2Move, room.playersAlive);
+        if (PlayerInRoom(room.team1Player2, room))
+            await _hubContext.Clients.Client(GetFullConnectionId(room.team1Player2)).SendAsync("ReceiveMoves", t1p2Move + t2p2Move + t1p1Move + t2p1Move, room.playersAlive);
+        if (PlayerInRoom(room.team2Player1, room))
+            await _hubContext.Clients.Client(GetFullConnectionId(room.team2Player1)).SendAsync("ReceiveMoves", t2p1Move + t1p1Move + t2p2Move + t1p2Move, room.playersAlive);
+        if (PlayerInRoom(room.team2Player2, room))
+            await _hubContext.Clients.Client(GetFullConnectionId(room.team2Player2)).SendAsync("ReceiveMoves", t2p2Move + t1p2Move + t2p1Move + t1p1Move, room.playersAlive);
 
         // wait 3 seconds and then start the next round
-        // TODO: stop on game over
         await Task.Delay(3000);
-        if (roomMap.ContainsKey(team1Player1))
-            await _hubContext.Clients.Client(GetFullConnectionId(team1Player1)).SendAsync("StartRound");
-        if (roomMap.ContainsKey(team1Player2))
-            await _hubContext.Clients.Client(GetFullConnectionId(team1Player2)).SendAsync("StartRound");
-        if (roomMap.ContainsKey(team2Player1))
-            await _hubContext.Clients.Client(GetFullConnectionId(team2Player1)).SendAsync("StartRound");
-        if (roomMap.ContainsKey(team2Player2))
-            await _hubContext.Clients.Client(GetFullConnectionId(team2Player2)).SendAsync("StartRound");
+        if (PlayerInRoom(room.team1Player1, room))
+            await _hubContext.Clients.Client(GetFullConnectionId(room.team1Player1)).SendAsync("StartRound");
+        if (PlayerInRoom(room.team1Player2, room))
+            await _hubContext.Clients.Client(GetFullConnectionId(room.team1Player2)).SendAsync("StartRound");
+        if (PlayerInRoom(room.team2Player1, room))
+            await _hubContext.Clients.Client(GetFullConnectionId(room.team2Player1)).SendAsync("StartRound");
+        if (PlayerInRoom(room.team2Player2, room))
+            await _hubContext.Clients.Client(GetFullConnectionId(room.team2Player2)).SendAsync("StartRound");
         
         _ = StartRoundTimer(room);
     }
@@ -415,35 +383,21 @@ public class GameHub : Hub
             // notify players that they have joined the room
             await Clients.Client(GetFullConnectionId(player1)).SendAsync("JoinRoom",
                 _connectedUsers[GetFullConnectionId(player1)], _connectedUsers[GetFullConnectionId(player2)], _connectedUsers[GetFullConnectionId(team2Player1)], _connectedUsers[GetFullConnectionId(team2Player2)],
-                player1, player2, team2Player1, team2Player2
-                );
+                player1, player2, team2Player1, team2Player2);
 
             await Clients.Client(GetFullConnectionId(player2)).SendAsync("JoinRoom",
                 _connectedUsers[GetFullConnectionId(player2)], _connectedUsers[GetFullConnectionId(player1)], _connectedUsers[GetFullConnectionId(team2Player2)], _connectedUsers[GetFullConnectionId(team2Player1)],
-                player2, player1, team2Player2, team2Player1
-                );
+                player2, player1, team2Player2, team2Player1);
 
             await Clients.Client(GetFullConnectionId(team2Player1)).SendAsync("JoinRoom",
                 _connectedUsers[GetFullConnectionId(team2Player1)],  _connectedUsers[GetFullConnectionId(team2Player2)], _connectedUsers[GetFullConnectionId(player1)], _connectedUsers[GetFullConnectionId(player2)],
-                team2Player1, team2Player2, player1, player2
-                );
+                team2Player1, team2Player2, player1, player2);
 
             await Clients.Client(GetFullConnectionId(team2Player2)).SendAsync("JoinRoom",
                 _connectedUsers[GetFullConnectionId(team2Player2)], _connectedUsers[GetFullConnectionId(team2Player1)], _connectedUsers[GetFullConnectionId(player2)], _connectedUsers[GetFullConnectionId(player1)],
-                team2Player2, team2Player1, player2, player1
-                );
+                team2Player2, team2Player1, player2, player1);
 
-            bool[] roomAlive = { true, true, true, true };
-            Dictionary<string, bool> playersAlive = [];
-            Dictionary<string, string> roomMoves = [];
-            string[] roomPlayers = { player1, team2Player1, player2, team2Player2 };
-            Room room = new Room(player1, player2, team2Player1, team2Player2, playersAlive, roomMoves);
-            foreach (string roomPlayer in roomPlayers)
-            {
-                playersAlive[roomPlayer] = true;
-                roomMap[roomPlayer] = room;
-            }
-            _ = StartRoundTimer(room);
+            _ = StartRoundTimer(new Room(player1, player2, team2Player1, team2Player2));
         }
         else
         {
