@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using System.Diagnostics;
 using System.Numerics;
+using ProfanityFilter;
 
 public class Room
 {
@@ -76,10 +77,23 @@ public class GameHub : Hub
 
     private string GetFullConnectionId(string partialConnectionId) => _connectedUsers.First(u => u.Key.StartsWith(partialConnectionId)).Key;
 
-    public async Task StartMatchmaking(string friendConnectionId, string name)
+    private bool isProfane(string name)
     {
-        _connectedUsers[Context.ConnectionId] = name;
+        var filter = new ProfanityFilter.ProfanityFilter();
+        return filter.ContainsProfanity(name);
+    }
+
+    public async Task StartMatchmaking(string friendConnectionId, string name)
+    {   
         string userConnectionId = Context.ConnectionId.Substring(0, 8);
+
+        if (isProfane(name))
+        {
+            await _hubContext.Clients.Client(GetFullConnectionId(userConnectionId)).SendAsync("SetInactive", "Invalid name, please try another.");
+            return;
+        }
+
+        _connectedUsers[Context.ConnectionId] = name;
 
         if (friendConnectionId.Length == 0)
         {
