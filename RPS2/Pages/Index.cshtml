@@ -341,6 +341,50 @@
         return b == 0 ? -1 : b == 1 ? 1 : 0;
     }
 
+    function setPlayersAlive() {
+        function UpdatePlayersAlive(p1, p2, p3, p4) {
+            res1 = GetRPSResult(playerChoices[p1], playerChoices[p2]);
+            res2 = GetRPSResult(playerChoices[p3], playerChoices[p4]);
+            if (aiMode) {
+                playersAlive[p1] &= res1 >= 0;
+                playersAlive[p2] &= -res1 >= 0;
+                playersAlive[p3] &= res2 >= 0;
+                playersAlive[p4] &= -res2 >= 0;
+            }
+        }
+
+        // All players alive
+        if (playersAlive[0] && playersAlive[1] && playersAlive[2] && playersAlive[3])
+            UpdatePlayersAlive(0, 1, 2, 3);
+        
+        // You dead
+        else if (!playersAlive[0] && playersAlive[1] && playersAlive[2] && playersAlive[3])
+            UpdatePlayersAlive(2, 1, 2, 3);
+        
+        // Partner dead
+        else if (playersAlive[0] && playersAlive[1] && !playersAlive[2] && playersAlive[3])
+            UpdatePlayersAlive(0, 1, 0, 3);
+        
+        // Your enemy dead
+        else if (playersAlive[0] && !playersAlive[1] && playersAlive[2] && playersAlive[3])
+            UpdatePlayersAlive(0, 3, 2, 3);
+        
+        // Partner enemy dead
+        else if (playersAlive[0] && playersAlive[1] && playersAlive[2] && !playersAlive[3])
+            UpdatePlayersAlive(0, 1, 2, 1);
+        
+        // one from each team dead
+        else {
+            let teamAlive = playersAlive[0] ? 0 : 2;
+            let enemyAlive = playersAlive[1] ? 1 : 3;
+            let teamRes = res1 = res2 = GetRPSResult(playerChoices[teamAlive], playerChoices[enemyAlive]);
+                if (aiMode) {
+                playersAlive[teamAlive] = teamRes >= 0;
+                playersAlive[enemyAlive] = -teamRes >= 0;
+            }
+        }
+    }
+
     function revealChoices() {
         // Clear countdown interval
         clearInterval(countdownInterval);
@@ -377,83 +421,9 @@
         // hide choice selection
         document.getElementById('chooseItem').style.setProperty('display', 'none', 'important');
 
+        // calculate results and update lines (note that outside of ai mode, local results will be ignored in favor of results received from server)
         positionLines();
-
-        // evaluate round
-        // all players alive
-        if (playersAlive[0] && playersAlive[1] && playersAlive[2] && playersAlive[3]) {
-            let selfRes = res2 = GetRPSResult(playerChoices[0], playerChoices[1]);
-            let selfEnemyRes = -selfRes;
-            let partnerRes = res1 = GetRPSResult(playerChoices[2], playerChoices[3]);
-            let partnerEnemyRes = -partnerRes;
-            if(aiMode){
-                playersAlive[0] = selfRes >= 0;
-                playersAlive[1] = selfEnemyRes >= 0;
-                playersAlive[2] = partnerRes >= 0;
-                playersAlive[3] = partnerEnemyRes >= 0;
-            }
-        }
-        // you dead
-        else if (!playersAlive[0] && playersAlive[1] && playersAlive[2] && playersAlive[3]) {
-            let partnerRes1 = res2 = GetRPSResult(playerChoices[2], playerChoices[1]);
-            let selfEnemyRes = -partnerRes1;
-            let partnerRes2 = res1 = GetRPSResult(playerChoices[2], playerChoices[3]);
-            let partnerEnemyRes = -partnerRes2;
-            if (aiMode) {
-                playersAlive[1] = selfEnemyRes >= 0;
-                playersAlive[2] = partnerRes2 >= 0 && partnerRes2 >= 0;
-                playersAlive[3] = partnerEnemyRes >= 0;
-            }
-        }
-        // partner dead
-        else if (playersAlive[0] && playersAlive[1] && !playersAlive[2] && playersAlive[3]) {
-            let selfRes1 = res2 = GetRPSResult(playerChoices[0], playerChoices[1]);
-            let selfEnemyRes = -selfRes1;
-            let selfRes2 = res1 = GetRPSResult(playerChoices[0], playerChoices[3]);
-            let partnerEnemyRes = -selfRes2;
-            if (aiMode) {
-                playersAlive[0] = selfRes1 >= 0 && selfRes2 >= 0;
-                playersAlive[1] = selfEnemyRes >= 0;
-                playersAlive[3] = partnerEnemyRes >= 0;
-            }
-        }
-        // your enemy dead
-        else if (playersAlive[0] && !playersAlive[1] && playersAlive[2] && playersAlive[3]) {
-            let selfRes = res2 = GetRPSResult(playerChoices[0], playerChoices[3]);
-            let partnerEnemyRes1 = -selfRes;
-            let partnerRes = res1 = GetRPSResult(playerChoices[2], playerChoices[3]);
-            let partnerEnemyRes2 = -partnerRes;
-            if (aiMode) {
-                playersAlive[0] = selfRes >= 0;
-                playersAlive[2] = partnerRes >= 0;
-                playersAlive[3] = partnerEnemyRes1 >= 0 && partnerEnemyRes2 >= 0;
-            }
-        }
-        // partner enemy dead
-        else if (playersAlive[0] && playersAlive[1] && playersAlive[2] && !playersAlive[3]) {
-            let selfRes = res2 = GetRPSResult(playerChoices[0], playerChoices[1]);
-            let selfEnemyRes1 = -selfRes;
-            let partnerRes = res1 = GetRPSResult(playerChoices[2], playerChoices[1]);
-            let selfEnemyRes2 = -partnerRes;
-            if (aiMode) {
-                playersAlive[0] = selfRes >= 0;
-                playersAlive[1] = selfEnemyRes1 >= 0 && selfEnemyRes2 >= 0;
-                playersAlive[2] = partnerRes >= 0;
-            }
-        }
-
-        // two dead
-        else if (playersAlive[0] + playersAlive[1] + playersAlive[2] + playersAlive[3] == 2) {
-            // there shouldn't be a case where two on the same team are alive as the round would be reset
-            let teamAlive = playersAlive[0] ? 0 : 2;
-            let enemyAlive = playersAlive[1] ? 1 : 3;
-            let teamRes = res1 = res2 = GetRPSResult(playerChoices[teamAlive], playerChoices[enemyAlive]);
-            let enemyRes = -teamRes;
-            if (aiMode) {
-                playersAlive[teamAlive] = teamRes >= 0;
-                playersAlive[enemyAlive] = enemyRes >= 0;
-            }
-        }
+        setPlayersAlive();
         recolorLines();
 
         if (!aiMode) {
@@ -612,7 +582,7 @@
         let colors = ["red", "white", "green"];
 
         for (let i = 0; i < lines.length; ++i) {
-            lines[i].setAttribute("stroke", colors[(i == 0 ? res1 : res2) + 1]);
+            lines[i].setAttribute("stroke", colors[(i == 0 ? res2 : res1) + 1]);
         }
     }
 

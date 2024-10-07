@@ -184,74 +184,45 @@ public class GameHub : Hub
 
     private void setPlayersAlive(bool[] playersAlive, int[] playerChoices)
     {
-        // evaluate round 
-        // all players alive
-        if (playersAlive[0] && playersAlive[1] && playersAlive[2] && playersAlive[3])
+        void UpdatePlayersAlive(int p1, int p2, int p3, int p4)
         {
-            int selfRes = GetRPSResult(playerChoices[0], playerChoices[1]);
-            int selfEnemyRes = -selfRes;
-            int partnerRes = GetRPSResult(playerChoices[2], playerChoices[3]);
-            int partnerEnemyRes = -partnerRes;
-            playersAlive[0] = selfRes >= 0;
-            playersAlive[1] = selfEnemyRes >= 0;
-            playersAlive[2] = partnerRes >= 0;
-            playersAlive[3] = partnerEnemyRes >= 0;
-        }
-        // you dead
-        else if (!playersAlive[0] && playersAlive[1] && playersAlive[2] && playersAlive[3])
-        {
-            int partnerRes1 = GetRPSResult(playerChoices[2], playerChoices[1]);
-            int selfEnemyRes = -partnerRes1;
-            int partnerRes2 = GetRPSResult(playerChoices[2], playerChoices[3]);
-            int partnerEnemyRes = -partnerRes2;
-            playersAlive[1] = selfEnemyRes >= 0;
-            playersAlive[2] = partnerRes2 >= 0;
-            playersAlive[3] = partnerEnemyRes >= 0;
-        }
-        // partner dead
-        else if (playersAlive[0] && playersAlive[1] && !playersAlive[2] && playersAlive[3])
-        {
-            int selfRes1 = GetRPSResult(playerChoices[0], playerChoices[1]);
-            int selfEnemyRes = -selfRes1;
-            int selfRes2 = GetRPSResult(playerChoices[0], playerChoices[3]);
-            int partnerEnemyRes = -selfRes2;
-            playersAlive[0] = selfRes1 >= 0 && selfRes2 >= 0;
-            playersAlive[1] = selfEnemyRes >= 0;
-            playersAlive[3] = partnerEnemyRes >= 0;
-        }
-        // your enemy dead
-        else if (playersAlive[0] && !playersAlive[1] && playersAlive[2] && playersAlive[3])
-        {
-            int selfRes = GetRPSResult(playerChoices[0], playerChoices[3]);
-            int partnerEnemyRes1 = -selfRes;
-            int partnerRes = GetRPSResult(playerChoices[2], playerChoices[3]);
-            int partnerEnemyRes2 = -partnerRes;
-            playersAlive[0] = selfRes >= 0;
-            playersAlive[2] = partnerRes >= 0;
-            playersAlive[3] = partnerEnemyRes1 >= 0 && partnerEnemyRes2 >= 0;
-        }
-        // partner enemy dead
-        else if (playersAlive[0] && playersAlive[1] && playersAlive[2] && !playersAlive[3])
-        {
-            int selfRes = GetRPSResult(playerChoices[0], playerChoices[1]);
-            int selfEnemyRes1 = -selfRes;
-            int partnerRes = GetRPSResult(playerChoices[2], playerChoices[1]);
-            int selfEnemyRes2 = -partnerRes;
-            playersAlive[0] = selfRes >= 0;
-            playersAlive[1] = selfEnemyRes1 >= 0 && selfEnemyRes2 >= 0;
-            playersAlive[2] = partnerRes >= 0;
+            int res1 = GetRPSResult(playerChoices[p1], playerChoices[p2]);
+            int res2 = GetRPSResult(playerChoices[p3], playerChoices[p4]);
+            playersAlive[p1] &= res1 >= 0;
+            playersAlive[p2] &= -res1 >= 0;
+            playersAlive[p3] &= res2 >= 0;
+            playersAlive[p4] &= -res2 >= 0;
         }
 
-        // two dead
+        // evaluate round
+        // all players alive
+        if (playersAlive[0] && playersAlive[1] && playersAlive[2] && playersAlive[3])
+            UpdatePlayersAlive(0, 1, 2, 3);
+        
+        // you dead
+        else if (!playersAlive[0] && playersAlive[1] && playersAlive[2] && playersAlive[3])
+            UpdatePlayersAlive(2, 1, 2, 3);
+        
+        // partner dead
+        else if (playersAlive[0] && playersAlive[1] && !playersAlive[2] && playersAlive[3])
+            UpdatePlayersAlive(0, 1, 0, 3);
+        
+        // your enemy dead
+        else if (playersAlive[0] && !playersAlive[1] && playersAlive[2] && playersAlive[3])
+            UpdatePlayersAlive(0, 3, 2, 3);
+        
+        // partner enemy dead
+        else if (playersAlive[0] && playersAlive[1] && playersAlive[2] && !playersAlive[3])
+            UpdatePlayersAlive(0, 1, 2, 1);
+        
+        // one from each team dead
         else
         {
-            // there shouldn't be a case where two on the same team are alive as the round would be reset
             int teamAlive = playersAlive[0] ? 0 : 2;
             int enemyAlive = playersAlive[1] ? 1 : 3;
             int teamRes = GetRPSResult(playerChoices[teamAlive], playerChoices[enemyAlive]);
-            int enemyRes = -teamRes;
             playersAlive[teamAlive] = teamRes >= 0;
-            playersAlive[enemyAlive] = enemyRes >= 0;
+            playersAlive[enemyAlive] = -teamRes >= 0;
         }
     }
 
