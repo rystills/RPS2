@@ -357,7 +357,7 @@ public class GameHub : Hub
             _waitingPairLeaders.Remove(team2Player1);
             _reversePairs.Remove(team2Player2);
 
-            Room room = new Room(player1, player2, team2Player1, team2Player2);
+            Room room = new(player1, player2, team2Player1, team2Player2);
 
             // notify players that they have joined the room
             await Clients.Client(GetFullConnectionId(player1)).SendAsync("JoinRoom",

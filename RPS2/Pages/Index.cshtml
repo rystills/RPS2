@@ -714,7 +714,7 @@
 
     // listen for moves
     connection.on("ReceiveMoves", function (playerMoves, playersAlive, serverRoomId) {
-        if (roomId != serverRoomid) alert(serverRoomid);
+        if (roomId != serverRoomId) return;
         for (let i = 0; i < playerMoves.length; ++i) {
             playerChoices[i] = playerMoves[i];
             if(!moveOptions[playerChoices[i]]){
@@ -727,7 +727,7 @@
 
     // listen for moves
     connection.on("SetInactive", function (alertText, serverRoomId) {
-        if (roomId != serverRoomid) return;
+        if (roomId != serverRoomId) return;
         if(alertText.length > 0){
             alert(alertText);
         }
@@ -737,7 +737,7 @@
 
     // start next round
     connection.on("StartRound", function (serverRoomId) {
-        if (roomId != serverRoomid) return;
+        if (roomId != serverRoomId) return;
         startNextRound();
     });
 
@@ -746,7 +746,7 @@
     });
 
     connection.on("PlayerMoved", function (playerCode, serverRoomId) {
-        if (roomId != serverRoomid) return;
+        if (roomId != serverRoomId) return;
         playerIndex = playerMap[playerCode];
         console.log(playerCode);
         console.log(playerIndex);
@@ -777,7 +777,6 @@
 
     connection.on("JoinRoom", function (selfName, partnerName, selfEnemyName, partnerEnemyName, selfCode, partnerCode, selfEnemyCode, partnerEnemyCode, serverRoomId) {
         roomId = serverRoomId;
-        alert(roomId);
         // display room info
         document.getElementById("selfName").innerText = selfName + " (you)"
         document.getElementById("selfEnemyName").innerText = selfEnemyName;
