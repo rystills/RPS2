@@ -208,6 +208,7 @@
     let countdownInterval = null;
     let round = 1;
     let serverPlayersAlive = {};
+    let roomId = 0;
 
     friendIdInput.addEventListener('input', function () {
         // restrict friend code input to alphanum
@@ -712,7 +713,8 @@
     });
 
     // listen for moves
-    connection.on("ReceiveMoves", function (playerMoves, playersAlive) {
+    connection.on("ReceiveMoves", function (playerMoves, playersAlive, serverRoomId) {
+        if (roomId != serverRoomid) alert(serverRoomid);
         for (let i = 0; i < playerMoves.length; ++i) {
             playerChoices[i] = playerMoves[i];
             if(!moveOptions[playerChoices[i]]){
@@ -724,7 +726,8 @@
     });
 
     // listen for moves
-    connection.on("SetInactive", function (alertText) {
+    connection.on("SetInactive", function (alertText, serverRoomId) {
+        if (roomId != serverRoomid) return;
         if(alertText.length > 0){
             alert(alertText);
         }
@@ -733,7 +736,8 @@
     });
 
     // start next round
-    connection.on("StartRound", function () {
+    connection.on("StartRound", function (serverRoomId) {
+        if (roomId != serverRoomid) return;
         startNextRound();
     });
 
@@ -741,9 +745,8 @@
         updateMatchmakingText(numPlayersInRoom);
     });
 
-    connection.on("PlayerMoved", function (playerCode) {
-
-
+    connection.on("PlayerMoved", function (playerCode, serverRoomId) {
+        if (roomId != serverRoomid) return;
         playerIndex = playerMap[playerCode];
         console.log(playerCode);
         console.log(playerIndex);
@@ -772,7 +775,9 @@
         console.log(playerMoves);
     });
 
-    connection.on("JoinRoom", function (selfName, partnerName, selfEnemyName, partnerEnemyName, selfCode, partnerCode, selfEnemyCode, partnerEnemyCode) {
+    connection.on("JoinRoom", function (selfName, partnerName, selfEnemyName, partnerEnemyName, selfCode, partnerCode, selfEnemyCode, partnerEnemyCode, serverRoomId) {
+        roomId = serverRoomId;
+        alert(roomId);
         // display room info
         document.getElementById("selfName").innerText = selfName + " (you)"
         document.getElementById("selfEnemyName").innerText = selfEnemyName;
